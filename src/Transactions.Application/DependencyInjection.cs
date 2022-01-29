@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using FluentValidation;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -17,9 +18,15 @@ namespace Transactions.Application
         {
             var assembly = Assembly.GetExecutingAssembly();
             services.AddMediatR(assembly);
+            services.AddValidatorsFromAssembly(assembly);
             services.AddAutoMapper(assembly);
 
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ApiExceptionBehavior<,>));
+
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehavior<,>));
+
             return services;
         }
 

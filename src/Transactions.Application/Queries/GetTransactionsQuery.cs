@@ -39,7 +39,6 @@ namespace Transactions.Application.Queries
 
             public async Task<List<TransactionModel>> Handle(GetTransactionsQuery request, CancellationToken cancellationToken)
             {
-                var transactions = await _financialService.GetTransactionsAsync(request.StartDate, request.EndDate);
                 return await _financialService.GetTransactionsAsync(request.StartDate, request.EndDate);
             }
         }

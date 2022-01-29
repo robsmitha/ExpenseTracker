@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Application.Common.Exceptions
+namespace Transactions.Application.Exceptions
 {
     public class CustomValidationException : Exception
     {
