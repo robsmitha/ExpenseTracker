@@ -1,0 +1,90 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31702.278
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8DB0DCF4-5DA8-4F2F-BD19-C674C748DAE9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transactions.Domain", "src\Transactions.Domain\Transactions.Domain.csproj", "{420AF4A1-5F38-48B1-A2A9-E3381F089B2E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transactions.Infrastructure", "src\Transactions.Infrastructure\Transactions.Infrastructure.csproj", "{2D3FB2CA-5E25-4804-904C-C57CEDADA73D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transactions.Application", "src\Transactions.Application\Transactions.Application.csproj", "{36351D54-B2D4-4E7E-8AFE-6A9134CDCD6F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transactions.Job", "src\Transactions.Job\Transactions.Job.csproj", "{B606C2EF-513D-48CB-A362-25F9C0DB6910}"
+EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Plaid", "src\Plaid\", "{43B02832-0549-41E5-A9AE-2C3A3CE814FF}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		Debug.AspNetCompiler.VirtualPath = "/localhost_55075"
+		Debug.AspNetCompiler.PhysicalPath = "src\Plaid\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_55075\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/localhost_55075"
+		Release.AspNetCompiler.PhysicalPath = "src\Plaid\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_55075\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "55075"
+		SlnRelativePath = "src\Plaid\"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transactions.JavaScriptClient", "src\Transactions.JavaScriptClient\Transactions.JavaScriptClient.csproj", "{F2A5AD9D-E19D-4D46-A69B-4F5C16D04DDA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transactions.Api", "src\Transactions.Api\Transactions.Api.csproj", "{B3D5FF1F-6362-4777-BEFC-E185C6B867B1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{420AF4A1-5F38-48B1-A2A9-E3381F089B2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{420AF4A1-5F38-48B1-A2A9-E3381F089B2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{420AF4A1-5F38-48B1-A2A9-E3381F089B2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{420AF4A1-5F38-48B1-A2A9-E3381F089B2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D3FB2CA-5E25-4804-904C-C57CEDADA73D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D3FB2CA-5E25-4804-904C-C57CEDADA73D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D3FB2CA-5E25-4804-904C-C57CEDADA73D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D3FB2CA-5E25-4804-904C-C57CEDADA73D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36351D54-B2D4-4E7E-8AFE-6A9134CDCD6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36351D54-B2D4-4E7E-8AFE-6A9134CDCD6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36351D54-B2D4-4E7E-8AFE-6A9134CDCD6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36351D54-B2D4-4E7E-8AFE-6A9134CDCD6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B606C2EF-513D-48CB-A362-25F9C0DB6910}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B606C2EF-513D-48CB-A362-25F9C0DB6910}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B606C2EF-513D-48CB-A362-25F9C0DB6910}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B606C2EF-513D-48CB-A362-25F9C0DB6910}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43B02832-0549-41E5-A9AE-2C3A3CE814FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43B02832-0549-41E5-A9AE-2C3A3CE814FF}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{43B02832-0549-41E5-A9AE-2C3A3CE814FF}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{F2A5AD9D-E19D-4D46-A69B-4F5C16D04DDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2A5AD9D-E19D-4D46-A69B-4F5C16D04DDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2A5AD9D-E19D-4D46-A69B-4F5C16D04DDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2A5AD9D-E19D-4D46-A69B-4F5C16D04DDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3D5FF1F-6362-4777-BEFC-E185C6B867B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3D5FF1F-6362-4777-BEFC-E185C6B867B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3D5FF1F-6362-4777-BEFC-E185C6B867B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3D5FF1F-6362-4777-BEFC-E185C6B867B1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{420AF4A1-5F38-48B1-A2A9-E3381F089B2E} = {8DB0DCF4-5DA8-4F2F-BD19-C674C748DAE9}
+		{2D3FB2CA-5E25-4804-904C-C57CEDADA73D} = {8DB0DCF4-5DA8-4F2F-BD19-C674C748DAE9}
+		{36351D54-B2D4-4E7E-8AFE-6A9134CDCD6F} = {8DB0DCF4-5DA8-4F2F-BD19-C674C748DAE9}
+		{B606C2EF-513D-48CB-A362-25F9C0DB6910} = {8DB0DCF4-5DA8-4F2F-BD19-C674C748DAE9}
+		{43B02832-0549-41E5-A9AE-2C3A3CE814FF} = {8DB0DCF4-5DA8-4F2F-BD19-C674C748DAE9}
+		{F2A5AD9D-E19D-4D46-A69B-4F5C16D04DDA} = {8DB0DCF4-5DA8-4F2F-BD19-C674C748DAE9}
+		{B3D5FF1F-6362-4777-BEFC-E185C6B867B1} = {8DB0DCF4-5DA8-4F2F-BD19-C674C748DAE9}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {51159A2E-788D-4089-B202-F014229733D4}
+	EndGlobalSection
+EndGlobal
