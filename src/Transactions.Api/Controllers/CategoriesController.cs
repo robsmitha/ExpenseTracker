@@ -14,15 +14,14 @@ namespace Transactions.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoriesController : ControllerBase
+    public class CategoriesController : BaseApiController<CategoriesController>
     {
         private readonly IMediator _mediator;
-        private readonly ILogger<CategoriesController> _logger;
 
-        public CategoriesController(IMediator mediator, ILogger<CategoriesController> logger)
+        public CategoriesController(IMediator mediator, ILogger<CategoriesController> logger, IHttpContextAccessor httpContextAccessor)
+            : base(logger, httpContextAccessor)
         {
             _mediator = mediator;
-            _logger = logger;
         }
 
         [HttpGet]

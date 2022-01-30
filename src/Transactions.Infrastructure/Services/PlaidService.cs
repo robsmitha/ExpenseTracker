@@ -12,7 +12,6 @@ using Transactions.Application.Exceptions;
 using Transactions.Application.Interfaces;
 using Transactions.Application.Models;
 using Transactions.Domain.Responses;
-using Transactions.Infrastructure.Context;
 using Transactions.Infrastructure.Settings;
 
 namespace Transactions.Infrastructure.Services
@@ -20,29 +19,39 @@ namespace Transactions.Infrastructure.Services
     public class PlaidService : IFinancialService
     {
         private readonly IMapper _mapper;
-        private readonly ApplicationContext _context;
-        private readonly ICategoryService _categoryService;
         private readonly HttpClient _client;
         private readonly PlaidSettings _plaidSettings;
 
+        private readonly ICategoryService _categoryService;
+        private readonly IAccessTokenService _accessTokenService;
+
         public PlaidService(HttpClient httpClient, IOptions<PlaidSettings> plaidSettings, IMapper mapper,
-            ApplicationContext context, ICategoryService categoryService)
+            IAccessTokenService accessTokenService, ICategoryService categoryService)
         {
             _client = httpClient;
             _plaidSettings = plaidSettings.Value;
             _mapper = mapper;
-            _context = context;
+            _accessTokenService = accessTokenService;
             _categoryService = categoryService;
         }
 
-        public async Task<List<TransactionModel>> GetTransactionsAsync(DateTime startDate, DateTime endDate)
+        public async Task<AccessTokenModel> SetAccessTokenAsync(string userId, string token)
         {
+            // TODO: Check if access token is valid
+
+            return await _accessTokenService.SetAccessTokenAsync(userId, token);
+        }
+
+        public async Task<List<TransactionModel>> GetTransactionsAsync(string userId, DateTime startDate, DateTime endDate)
+        {
+            var accessToken = await GetAccessTokenAsync(userId);
+
             // get api response from plaid
             var response = await PostAsync<TransactionResponse>("transactions/get", new
             {
                 client_id = _plaidSettings.ClientId,
                 secret = _plaidSettings.Secret,
-                access_token = _plaidSettings.AccessToken,
+                access_token = accessToken.Token,
                 start_date = startDate.ToString("yyyy-MM-dd"),
                 end_date = endDate.ToString("yyyy-MM-dd")
             });
@@ -74,10 +83,10 @@ namespace Transactions.Infrastructure.Services
             // check for existing transaction categories
             var transactionIds = results.Select(t => t.transaction_id).ToList();
             var transactionCategories = await _categoryService.GetTransactionCategoriesAsync(transactionIds);
-            var map = transactionCategories.ToDictionary(t => t.TransactionId);
+            var transactionIdLookup = transactionCategories.ToDictionary(t => t.TransactionId);
             results.ForEach(t =>
             {
-                if(map.TryGetValue(t.transaction_id, out var transactionCategory))
+                if(transactionIdLookup.TryGetValue(t.transaction_id, out var transactionCategory))
                 {
                     t.Category = new CategoryModel
                     {
@@ -91,24 +100,26 @@ namespace Transactions.Infrastructure.Services
         }
 
 
-        public async Task<string> RefreshTransactionsAsync()
+        public async Task<string> RefreshTransactionsAsync(string userId)
         {
+            var accessToken = await GetAccessTokenAsync(userId);
             var response = await PostAsync<dynamic>("transactions/refresh", new
             {
                 client_id = _plaidSettings.ClientId,
-                access_token = _plaidSettings.AccessToken,
+                access_token = accessToken.Token,
                 secret = _plaidSettings.Secret
             });
             return response.request_id as string;
         }
 
-        public async Task<ItemModel> GetItemAsync()
+        public async Task<ItemModel> GetItemAsync(string userId)
         {
+            var accessToken = await GetAccessTokenAsync(userId);
             var response = await PostAsync<ItemResponse>("item/get", new
             {
                 client_id = _plaidSettings.ClientId,
                 secret = _plaidSettings.Secret,
-                access_token = _plaidSettings.AccessToken
+                access_token = accessToken.Token
             });
 
             return new ItemModel
@@ -117,16 +128,27 @@ namespace Transactions.Infrastructure.Services
             };
         }
 
-        public async Task<string> RemoveItemAsync()
+        public async Task<string> RemoveItemAsync(string userId)
         {
+            var accessToken = await GetAccessTokenAsync(userId);
             var response = await PostAsync<dynamic>("item/remove", new
             {
                 client_id = _plaidSettings.ClientId,
                 secret = _plaidSettings.Secret,
-                access_token = _plaidSettings.AccessToken
+                access_token = accessToken.Token
             });
 
             return response.request_id as string;
+        }
+
+        private async Task<AccessTokenModel> GetAccessTokenAsync(string userId)
+        {
+            var accessToken = await _accessTokenService.GetAccessTokenAsync(userId);
+            if (string.IsNullOrEmpty(accessToken?.Token))
+            {
+                throw new FinancialServiceException($"{nameof(accessToken)} not found for user {userId}");
+            }
+            return accessToken;
         }
 
         private async Task<T> PostAsync<T>(string endpoint, dynamic data)

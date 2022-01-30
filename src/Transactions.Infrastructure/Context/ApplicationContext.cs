@@ -15,6 +15,7 @@ namespace Transactions.Infrastructure.Context
                : base(options)
         { }
 
+        public DbSet<AccessToken> AccessTokens { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<TransactionCategory> TransactionCategories { get; set; }
     }

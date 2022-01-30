@@ -38,6 +38,7 @@ namespace Transactions.Api
 
             services.AddApplication();
             services.AddInfrastructure(Configuration);
+            services.AddHttpContextAccessor();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

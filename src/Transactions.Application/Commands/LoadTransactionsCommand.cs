@@ -12,15 +12,22 @@ namespace Transactions.Application.Commands
 {
     public class LoadTransactionsCommand : IRequest<LoadTransactionsCommand.Response>
     {
+        private string UserId { get; set; }
         private DateTime StartDate { get; set; }
         private DateTime EndDate { get; set; }
-        public LoadTransactionsCommand(DateTime startDate, DateTime endDate)
+        public LoadTransactionsCommand(string userId, DateTime startDate, DateTime endDate)
         {
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new ArgumentException($"{nameof(userId)} cannot be null or empty.");
+            }
+
             if (startDate > endDate)
             {
                 throw new ArgumentException($"{nameof(startDate)} value \"{startDate}\" cannot be after {nameof(endDate)} value \"{endDate}\"");
             }
 
+            UserId = userId;
             StartDate = startDate;
             EndDate = endDate;
         }
@@ -40,7 +47,7 @@ namespace Transactions.Application.Commands
 
             public async Task<Response> Handle(LoadTransactionsCommand request, CancellationToken cancellationToken)
             {
-                var transactions = await _financialService.GetTransactionsAsync(request.StartDate, request.EndDate);
+                var transactions = await _financialService.GetTransactionsAsync(request.UserId, request.StartDate, request.EndDate);
                 
                 var worksheetName = $"{request.StartDate:Y}-{transactions.First().Account.official_name}";
                 await _excelService.SaveExcelFileAsync(transactions, worksheetName);

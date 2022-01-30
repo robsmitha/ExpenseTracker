@@ -22,6 +22,7 @@ namespace Transactions.Infrastructure
             services.AddTransient<IFinancialService, PlaidService>();
             services.AddTransient<IExcelService, EPPlusService>();
             services.AddTransient<ICategoryService, CategoryService>();
+            services.AddTransient<IAccessTokenService, AccessTokenService>();
             services.AddHttpClient();
             return services;
         }

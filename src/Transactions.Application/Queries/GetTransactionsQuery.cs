@@ -13,15 +13,22 @@ namespace Transactions.Application.Queries
 {
     public class GetTransactionsQuery : IRequest<List<TransactionModel>>
     {
+        private string UserId { get; set; }
         private DateTime StartDate { get; set; }
         private DateTime EndDate { get; set; }
-        public GetTransactionsQuery(DateTime startDate, DateTime endDate)
+        public GetTransactionsQuery(string userId, DateTime startDate, DateTime endDate)
         {
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new ArgumentException($"{nameof(userId)} cannot be null or empty.");
+            }
+
             if (startDate > endDate)
             {
                 throw new ArgumentException($"{nameof(startDate)} value \"{startDate}\" cannot be after {nameof(endDate)} value \"{endDate}\"");
             }
 
+            UserId = userId;
             StartDate = startDate;
             EndDate = endDate;
         }
@@ -29,17 +36,15 @@ namespace Transactions.Application.Queries
         public class Handler : IRequestHandler<GetTransactionsQuery, List<TransactionModel>>
         {
             private readonly IFinancialService _financialService;
-            private readonly ICategoryService _categoryService;
 
-            public Handler(IFinancialService financialService, ICategoryService categoryService)
+            public Handler(IFinancialService financialService)
             {
                 _financialService = financialService;
-                _categoryService = categoryService;
             }
 
             public async Task<List<TransactionModel>> Handle(GetTransactionsQuery request, CancellationToken cancellationToken)
             {
-                return await _financialService.GetTransactionsAsync(request.StartDate, request.EndDate);
+                return await _financialService.GetTransactionsAsync(request.UserId, request.StartDate, request.EndDate);
             }
         }
     }

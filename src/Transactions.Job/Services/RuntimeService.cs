@@ -22,10 +22,12 @@ namespace Transactions.Job.Services
 
         public async Task StartAsync()
         {
+            // TODO: Pull list of access tokens
+            var userId = string.Empty;
             var now = DateTime.Now;
             var firstDayOfMonth = new DateTime(now.Year, now.Month, 1);
             var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
-            var response = await _mediator.Send(new LoadTransactionsCommand(firstDayOfMonth, lastDayOfMonth));
+            var response = await _mediator.Send(new LoadTransactionsCommand(userId, firstDayOfMonth, lastDayOfMonth));
             _logger.LogInformation($"Loaded {response.Transactions.Count} transaction{(response.Transactions.Count == 1 ? "" : "s")}");
         }
 
