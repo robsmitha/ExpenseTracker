@@ -99,6 +99,36 @@ namespace Transactions.Infrastructure.Services
             return results;
         }
 
+        public async Task<LinkTokenModel> CreateLinkTokenAsync(string userId)
+        {
+            var response = await PostAsync<CreateLinkTokenResponse>("link/token/create", new
+            {
+                client_id = _plaidSettings.ClientId,
+                secret = _plaidSettings.Secret,
+                user = new
+                {
+                    client_user_id = userId
+                },
+                client_name = "Expense Tracker",
+                products = new[] { "transactions" },
+                country_codes = new[] { "US" },
+                language = "en"
+            });
+
+            return _mapper.Map<LinkTokenModel>(response);
+        }
+
+        public async Task<ItemPublicTokenExchangeModel> ItemPublicTokenExchangeAsync(string publicToken)
+        {
+            var response = await PostAsync<ItemPublicTokenExchangeResponse>("item/public_token/exchange", new
+            {
+                client_id = _plaidSettings.ClientId,
+                secret = _plaidSettings.Secret,
+                public_token = publicToken
+            });
+
+            return _mapper.Map<ItemPublicTokenExchangeModel>(response);
+        }
 
         public async Task<string> RefreshTransactionsAsync(string userId)
         {

@@ -30,44 +30,13 @@ namespace Transactions.Infrastructure.Services
 
         public async Task<AccessTokenModel> SetAccessTokenAsync(string userId, string token)
         {
-            AccessToken accessToken = null;
-            try
+            var accessToken = new AccessToken
             {
-                // get existing access token if any
-                accessToken = await _context.AccessTokens
-                    .SingleOrDefaultAsync(t => t.UserId == userId && t.Token == token);
-            }
-            catch (InvalidOperationException)
-            {
-                // multiple records, delete all and set new access token
-                var duplicates = await _context.AccessTokens
-                    .Where(t => t.UserId == userId && t.Token == token)
-                    .ToListAsync();
-                _context.RemoveRange(duplicates);
-                await _context.SaveChangesAsync();
-            }
-            catch(Exception)
-            {
-                throw;
-            }
-            finally
-            {
-                // create or update access token
-                if (accessToken == null)
-                {
-                    accessToken = new AccessToken
-                    {
-                        UserId = userId,
-                        Token = token
-                    };
-                    await _context.AddAsync(accessToken);
-                }
-                else
-                {
-                    accessToken.Token = token;
-                }
-                await _context.SaveChangesAsync();
-            }
+                UserId = userId,
+                Token = token
+            };
+            await _context.AddAsync(accessToken);
+            await _context.SaveChangesAsync();
             return _mapper.Map<AccessTokenModel>(accessToken);
         }
     }

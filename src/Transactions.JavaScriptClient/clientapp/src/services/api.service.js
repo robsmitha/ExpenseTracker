@@ -1,5 +1,5 @@
 
-export async function sendRequest(func, request) {
+export async function send(func, request) {
     try {
         const response = await fetch(process.env.REACT_APP_API_ENDPOINT + func, request)
         if(response.ok){

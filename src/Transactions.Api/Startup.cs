@@ -39,7 +39,16 @@ namespace Transactions.Api
             services.AddApplication();
             services.AddInfrastructure(Configuration);
             services.AddHttpContextAccessor();
-
+            services.AddCors(options =>
+            {
+                // this defines a CORS policy called "default"
+                options.AddPolicy("default", policy =>
+                {
+                    policy.WithOrigins("https://localhost:5001")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -89,6 +98,8 @@ namespace Transactions.Api
             app.UseCustomExceptionHandler();
 
             app.UseRouting();
+
+            app.UseCors("default");
 
             app.UseAuthentication();
             app.UseAuthorization();

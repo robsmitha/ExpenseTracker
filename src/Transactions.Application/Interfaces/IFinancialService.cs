@@ -13,5 +13,7 @@ namespace Transactions.Application.Interfaces
         Task<List<TransactionModel>> GetTransactionsAsync(string userId, DateTime startDate, DateTime endDate);
         Task<string> RefreshTransactionsAsync(string userId);
         Task<AccessTokenModel> SetAccessTokenAsync(string userId, string token);
+        Task<LinkTokenModel> CreateLinkTokenAsync(string userId);
+        Task<ItemPublicTokenExchangeModel> ItemPublicTokenExchangeAsync(string publicToken);
     }
 }

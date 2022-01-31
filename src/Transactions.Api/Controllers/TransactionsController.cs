@@ -35,9 +35,16 @@ namespace Transactions.Api.Controllers
         }
 
         [HttpPost("SetAccessToken")]
-        public async Task<ActionResult<AccessTokenModel>> SetAccessToken(AccessTokenModel model)
+        public async Task<ActionResult<AccessTokenModel>> SetAccessToken(ExchangePublicTokenModel model)
         {
-            return Ok(await _mediator.Send(new SetAccessTokenCommand(UserId, model.Token)));
+            return Ok(await _mediator.Send(new SetAccessTokenCommand(UserId, model.public_token)));
+        }
+
+        [HttpPost("CreateLinkToken")]
+        public async Task<ActionResult<LinkTokenModel>> CreateLinkToken()
+        {
+
+            return Ok(await _mediator.Send(new CreateLinkTokenCommand(UserId)));
         }
     }
 }

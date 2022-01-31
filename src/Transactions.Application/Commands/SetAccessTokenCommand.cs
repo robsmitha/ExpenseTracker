@@ -13,11 +13,11 @@ namespace Transactions.Application.Commands
     public class SetAccessTokenCommand : IRequest<AccessTokenModel>
     {
         public string UserId { get; set; }
-        public string Token { get; set; }
-        public SetAccessTokenCommand(string userId, string token)
+        public string PublicToken { get; set; }
+        public SetAccessTokenCommand(string userId, string publicToken)
         {
             UserId = userId;
-            Token = token;
+            PublicToken = publicToken;
         }
 
         public class Handler : IRequestHandler<SetAccessTokenCommand, AccessTokenModel>
@@ -29,7 +29,8 @@ namespace Transactions.Application.Commands
             }
             public async Task<AccessTokenModel> Handle(SetAccessTokenCommand request, CancellationToken cancellationToken)
             {
-                return await _financialService.SetAccessTokenAsync(request.UserId, request.Token);
+                var publicTokenExchangeResponse = await _financialService.ItemPublicTokenExchangeAsync(request.PublicToken);
+                return await _financialService.SetAccessTokenAsync(request.UserId, publicTokenExchangeResponse.access_token);
             }
         }
     }
