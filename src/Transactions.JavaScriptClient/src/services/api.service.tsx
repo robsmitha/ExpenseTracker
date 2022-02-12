@@ -1,5 +1,5 @@
 
-export async function send(func, request) {
+export async function send(func: string, request: any) {
     try {
         const response = await fetch(process.env.REACT_APP_API_ENDPOINT + func, request)
         if(response.ok){
@@ -12,7 +12,7 @@ export async function send(func, request) {
                 default: return JSON.stringify(response)
             }
         }
-    } catch (error) {
+    } catch (error: any) {
         return error.message
     }
 }

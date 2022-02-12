@@ -4,8 +4,7 @@ import {
   PlaidLinkOptions,
   PlaidLinkOnSuccess,
 } from "react-plaid-link";
-// @ts-ignore
-import { transactionService } from './../../services/transaction.service'
+import { transactionService } from './../services/transaction.service'
 
 interface Props {
   token: string;

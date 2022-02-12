@@ -15,7 +15,7 @@ async function createLinkToken () {
     }
     return send(`/transactions/createLinkToken`, request)
 }
-async function setAccessToken (publicToken) {
+async function setAccessToken (publicToken: string) {
     const token = authService.getToken()
     var request = {
         method: 'post',
