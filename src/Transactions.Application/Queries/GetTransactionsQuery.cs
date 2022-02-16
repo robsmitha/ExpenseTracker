@@ -36,15 +36,24 @@ namespace Transactions.Application.Queries
         public class Handler : IRequestHandler<GetTransactionsQuery, List<TransactionModel>>
         {
             private readonly IFinancialService _financialService;
+            private readonly IAccessTokenService _accessTokenService;
 
-            public Handler(IFinancialService financialService)
+            public Handler(IFinancialService financialService, IAccessTokenService accessTokenService)
             {
                 _financialService = financialService;
+                _accessTokenService = accessTokenService;
             }
 
             public async Task<List<TransactionModel>> Handle(GetTransactionsQuery request, CancellationToken cancellationToken)
             {
-                return await _financialService.GetTransactionsAsync(request.UserId, request.StartDate, request.EndDate);
+                var accessTokens = await _accessTokenService.GetAccessTokensAsync(request.UserId);
+                var list = new List<List<TransactionModel>>();
+                foreach (var accessToken in accessTokens)
+                {
+                    var transactions = await _financialService.GetTransactionsAsync(request.UserId, request.StartDate, request.EndDate);
+                    list.Add(transactions);
+                }
+                return list.SelectMany(l => l.ToList()).ToList();
             }
         }
     }

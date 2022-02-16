@@ -14,39 +14,6 @@ namespace Transactions.Domain.Responses
         public int total_transactions { get; set; }
         public List<Transaction> transactions { get; set; }
 
-        public class Balances
-        {
-            public int? available { get; set; }
-            public double current { get; set; }
-            public string iso_currency_code { get; set; }
-            public int? limit { get; set; }
-            public object unofficial_currency_code { get; set; }
-        }
-
-        public class Account
-        {
-            public string account_id { get; set; }
-            public Balances balances { get; set; }
-            public string mask { get; set; }
-            public string name { get; set; }
-            public string official_name { get; set; }
-            public string subtype { get; set; }
-            public string type { get; set; }
-        }
-
-        public class Item
-        {
-            public List<string> available_products { get; set; }
-            public List<string> billed_products { get; set; }
-            public object consent_expiration_time { get; set; }
-            public object error { get; set; }
-            public string institution_id { get; set; }
-            public string item_id { get; set; }
-            public List<string> products { get; set; }
-            public string update_type { get; set; }
-            public string webhook { get; set; }
-        }
-
         public class Location
         {
             public object address { get; set; }

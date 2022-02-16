@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Transactions.Domain.Responses
 {
-    public class ErrorResponse
+    public class Error
     {
         public object display_message { get; set; }
         public string documentation_url { get; set; }

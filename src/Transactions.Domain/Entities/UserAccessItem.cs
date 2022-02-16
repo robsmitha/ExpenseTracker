@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace Transactions.Domain.Entities
 {
-    public class AccessToken
+    public class UserAccessItem
     {
         public int Id { get; set; }
         public string UserId { get; set; }
-        public string Token { get; set; }
+        public string AccessToken { get; set; }
+        public string ItemId { get; set; }
     }
 }

@@ -31,11 +31,8 @@ export const SignOut: FunctionComponent = () => {
 
 
     return (
-        <Grid container spacing={2} pt={2}>
-            <Grid item xs>
-                
-            </Grid>
-            <Grid item xs={6}>
+        <Grid p={2}>
+            <Grid item md={6}>
                 <Typography variant="h3" component="div">
                     Expense Tracker
                 </Typography>
@@ -50,13 +47,10 @@ export const SignOut: FunctionComponent = () => {
                     </Grid>
                     <Grid item xs={6}>
                         <Button fullWidth variant="outlined" onClick={cancelSignOut}>
-                            No, keep me signed in
+                            No, I'll stay
                         </Button>
                     </Grid>
                 </Grid>
-            </Grid>
-            <Grid item xs>
-                
             </Grid>
         </Grid>
         

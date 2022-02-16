@@ -35,23 +35,21 @@ namespace Transactions.Infrastructure.Services
             _categoryService = categoryService;
         }
 
-        public async Task<AccessTokenModel> SetAccessTokenAsync(string userId, string token)
+        public async Task<AccessTokenModel> SetAccessTokenAsync(string userId, string accessToken, string itemId)
         {
             // TODO: Check if access token is valid
 
-            return await _accessTokenService.SetAccessTokenAsync(userId, token);
+            return await _accessTokenService.SetAccessTokenAsync(userId, accessToken, itemId);
         }
 
-        public async Task<List<TransactionModel>> GetTransactionsAsync(string userId, DateTime startDate, DateTime endDate)
+        public async Task<List<TransactionModel>> GetTransactionsAsync(string accessToken, DateTime startDate, DateTime endDate)
         {
-            var accessToken = await GetAccessTokenAsync(userId);
-
             // get api response from plaid
             var response = await PostAsync<TransactionResponse>("transactions/get", new
             {
                 client_id = _plaidSettings.ClientId,
                 secret = _plaidSettings.Secret,
-                access_token = accessToken.Token,
+                access_token = accessToken,
                 start_date = startDate.ToString("yyyy-MM-dd"),
                 end_date = endDate.ToString("yyyy-MM-dd")
             });
@@ -130,55 +128,74 @@ namespace Transactions.Infrastructure.Services
             return _mapper.Map<ItemPublicTokenExchangeModel>(response);
         }
 
-        public async Task<string> RefreshTransactionsAsync(string userId)
+        public async Task<string> RefreshTransactionsAsync(string accessToken)
         {
-            var accessToken = await GetAccessTokenAsync(userId);
             var response = await PostAsync<dynamic>("transactions/refresh", new
             {
                 client_id = _plaidSettings.ClientId,
-                access_token = accessToken.Token,
+                access_token = accessToken,
                 secret = _plaidSettings.Secret
             });
             return response.request_id as string;
         }
 
-        public async Task<ItemModel> GetItemAsync(string userId)
+        public async Task<ItemModel> GetItemAsync(string accessToken)
         {
-            var accessToken = await GetAccessTokenAsync(userId);
             var response = await PostAsync<ItemResponse>("item/get", new
             {
                 client_id = _plaidSettings.ClientId,
                 secret = _plaidSettings.Secret,
-                access_token = accessToken.Token
+                access_token = accessToken
             });
 
-            return new ItemModel
-            {
-                LastSuccessfulUpdate = response.status.transactions.last_successful_update
-            };
+            return _mapper.Map<ItemModel>(response);
         }
 
-        public async Task<string> RemoveItemAsync(string userId)
+        public async Task<string> RemoveItemAsync(string accessToken)
         {
-            var accessToken = await GetAccessTokenAsync(userId);
             var response = await PostAsync<dynamic>("item/remove", new
             {
                 client_id = _plaidSettings.ClientId,
                 secret = _plaidSettings.Secret,
-                access_token = accessToken.Token
+                access_token = accessToken
             });
 
             return response.request_id as string;
         }
 
-        private async Task<AccessTokenModel> GetAccessTokenAsync(string userId)
+        public async Task<InstitutionModel> GetInstitutionAsync(string institutionId)
         {
-            var accessToken = await _accessTokenService.GetAccessTokenAsync(userId);
-            if (string.IsNullOrEmpty(accessToken?.Token))
+            var response = await PostAsync<InstitutionResponse>("institutions/get_by_id", new
             {
-                throw new FinancialServiceException($"{nameof(accessToken)} not found for user {userId}");
-            }
-            return accessToken;
+                client_id = _plaidSettings.ClientId,
+                secret = _plaidSettings.Secret,
+                institution_id = institutionId,
+                country_codes = new [] { "US" }
+            });
+            return _mapper.Map<InstitutionModel>(response.institution);
+        }
+        public async Task<List<InstitutionModel>> GetInstitutionsAsync(int count, int offset)
+        {
+            var response = await PostAsync<InstitutionResponse>("institutions/get", new
+            {
+                client_id = _plaidSettings.ClientId,
+                secret = _plaidSettings.Secret,
+                count = count,
+                offset = offset,
+                country_codes = new[] { "US" }
+            });
+            return _mapper.Map<List<InstitutionModel>>(response.institution);
+        }
+        public async Task<List<AccountModel>> GetAccountsAsync(string accessToken)
+        {
+            var response = await PostAsync<GetAccountsResponse>("accounts/get", new
+            {
+                client_id = _plaidSettings.ClientId,
+                secret = _plaidSettings.Secret,
+                access_token = accessToken
+            });
+            var accounts = _mapper.Map<List<AccountModel>>(response.accounts);
+            return accounts;
         }
 
         private async Task<T> PostAsync<T>(string endpoint, dynamic data)
@@ -189,10 +206,10 @@ namespace Transactions.Infrastructure.Services
                 var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
                 var response = await _client.PostAsync(uri, content);
                 var result = await response.Content.ReadAsStringAsync();
-
+                var json = JsonConvert.SerializeObject(result);
                 if (!response.IsSuccessStatusCode)
                 {
-                    var error = JsonConvert.DeserializeObject<ErrorResponse>(result);
+                    var error = JsonConvert.DeserializeObject<Error>(result);
                     throw new FinancialServiceException(error.error_message);
                 }
 
@@ -214,7 +231,7 @@ namespace Transactions.Infrastructure.Services
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    var error = JsonConvert.DeserializeObject<ErrorResponse>(result);
+                    var error = JsonConvert.DeserializeObject<Error>(result);
                     throw new FinancialServiceException(error.error_message);
                 }
 

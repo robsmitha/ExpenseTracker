@@ -34,6 +34,12 @@ namespace Transactions.Api.Controllers
             return Ok(await _mediator.Send(new GetTransactionsQuery(UserId, firstDayOfMonth, lastDayOfMonth)));
         }
 
+        [HttpGet("GetUserAccessItems")]
+        public async Task<ActionResult<UserAccessItemModel>> GetUserAccessItems()
+        {
+            return Ok(await _mediator.Send(new GetUserAccessItemsQuery(UserId)));
+        }
+
         [HttpPost("SetAccessToken")]
         public async Task<ActionResult<AccessTokenModel>> SetAccessToken(ExchangePublicTokenModel model)
         {

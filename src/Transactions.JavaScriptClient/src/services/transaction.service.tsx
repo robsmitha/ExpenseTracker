@@ -1,9 +1,22 @@
 import { send } from './api.service'
 import { authService } from './auth.service'
 export const transactionService = {
+    getUserAccessItems,
     createLinkToken,
     setAccessToken
 };
+
+async function getUserAccessItems() {
+    const token = authService.getToken()
+    var request = {
+        method: 'get',
+        headers: { 
+            'Authorization': `Bearer ${token}` 
+        }
+    }
+    return send(`/transactions/getUserAccessItems`, request)
+}
+
 async function createLinkToken () {
     const token = authService.getToken()
     var request = {
@@ -15,6 +28,7 @@ async function createLinkToken () {
     }
     return send(`/transactions/createLinkToken`, request)
 }
+
 async function setAccessToken (publicToken: string) {
     const token = authService.getToken()
     var request = {

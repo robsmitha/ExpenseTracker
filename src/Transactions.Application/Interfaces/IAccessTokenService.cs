@@ -9,7 +9,7 @@ namespace Transactions.Application.Interfaces
 {
     public interface IAccessTokenService
     {
-        Task<AccessTokenModel> GetAccessTokenAsync(string userId);
-        Task<AccessTokenModel> SetAccessTokenAsync(string userId, string token);
+        Task<List<AccessTokenModel>> GetAccessTokensAsync(string userId);
+        Task<AccessTokenModel> SetAccessTokenAsync(string userId, string accessToken, string itemId);
     }
 }

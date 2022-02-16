@@ -8,9 +8,10 @@ using Transactions.Domain.Entities;
 
 namespace Transactions.Application.Models
 {
-    public class AccessTokenModel : IMapFrom<AccessToken>
+    public class AccessTokenModel : IMapFrom<UserAccessItem>
     {
         public string UserId { get; set; }
-        public string Token { get; set; }
+        public string AccessToken { get; set; }
+        public string ItemId { get; set; }
     }
 }

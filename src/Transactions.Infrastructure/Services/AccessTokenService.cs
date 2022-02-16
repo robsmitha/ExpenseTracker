@@ -22,20 +22,21 @@ namespace Transactions.Infrastructure.Services
             _mapper = mapper;
         }
 
-        public async Task<AccessTokenModel> GetAccessTokenAsync(string userId)
+        public async Task<List<AccessTokenModel>> GetAccessTokensAsync(string userId)
         {
-            var accessToken = await _context.AccessTokens.FirstOrDefaultAsync(a => a.UserId == userId);
-            return _mapper.Map<AccessTokenModel>(accessToken);
+            var accessToken = await _context.AccessTokens.Where(a => a.UserId == userId).ToListAsync();
+            return _mapper.Map<List<AccessTokenModel>>(accessToken);
         }
 
-        public async Task<AccessTokenModel> SetAccessTokenAsync(string userId, string token)
+        public async Task<AccessTokenModel> SetAccessTokenAsync(string userId, string accessToken, string itemId)
         {
-            var accessToken = new AccessToken
+            var userAccessItem = new UserAccessItem
             {
                 UserId = userId,
-                Token = token
+                AccessToken = accessToken,
+                ItemId = itemId
             };
-            await _context.AddAsync(accessToken);
+            await _context.AddAsync(userAccessItem);
             await _context.SaveChangesAsync();
             return _mapper.Map<AccessTokenModel>(accessToken);
         }
