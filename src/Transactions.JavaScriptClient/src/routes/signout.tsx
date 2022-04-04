@@ -1,6 +1,7 @@
 import { FunctionComponent, useEffect } from 'react';
 import { useUserContext } from './../context/UserContext';
 import { useNavigate } from 'react-router-dom';
+import { authService } from './../services/auth.service'
 import {
     Typography,
     Button,
@@ -21,7 +22,7 @@ export const SignOut: FunctionComponent = () => {
 
     const signOut = () => {
         setAuthenticated(false);
-        localStorage.removeItem("appUser");
+        authService.clearToken();
         navigate("/");
     }
 
@@ -31,10 +32,10 @@ export const SignOut: FunctionComponent = () => {
 
 
     return (
-        <Grid p={2}>
+        <Grid>
             <Grid item md={6}>
                 <Typography variant="h3" component="div">
-                    Expense Tracker
+                    Sign Out
                 </Typography>
                 <Typography variant="h6" component="div">
                     Are you sure you want to go?
@@ -53,7 +54,6 @@ export const SignOut: FunctionComponent = () => {
                 </Grid>
             </Grid>
         </Grid>
-        
     )
   };
 

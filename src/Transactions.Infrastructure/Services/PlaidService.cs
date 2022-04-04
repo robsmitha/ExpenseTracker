@@ -81,7 +81,7 @@ namespace Transactions.Infrastructure.Services
             // check for existing transaction categories
             var transactionIds = results.Select(t => t.transaction_id).ToList();
             var transactionCategories = await _categoryService.GetTransactionCategoriesAsync(transactionIds);
-            var transactionIdLookup = transactionCategories.ToDictionary(t => t.TransactionId);
+            var transactionIdLookup = transactionCategories.GroupBy(t => t.TransactionId).ToDictionary(g => g.Key, g => g.First());
             results.ForEach(t =>
             {
                 if(transactionIdLookup.TryGetValue(t.transaction_id, out var transactionCategory))

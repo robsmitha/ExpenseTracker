@@ -35,15 +35,24 @@ namespace Transactions.Application.Queries
                 var userAccessItems = new List<UserAccessItemModel>();
                 foreach(var accessToken in accessTokens)
                 {
-                    var accounts = await _financialService.GetAccountsAsync(accessToken.AccessToken);
-                    var item = await _financialService.GetItemAsync(accessToken.AccessToken);
-                    var institution = await _financialService.GetInstitutionAsync(item.InstitutionId);
-                    userAccessItems.Add(new UserAccessItemModel
+                    try
                     {
-                        Accounts = accounts,
-                        Institution = institution,
-                        Item = item
-                    });
+                        var accounts = await _financialService.GetAccountsAsync(accessToken.AccessToken);
+                        var item = await _financialService.GetItemAsync(accessToken.AccessToken);
+                        var institution = await _financialService.GetInstitutionAsync(item.InstitutionId);
+                        userAccessItems.Add(new UserAccessItemModel
+                        {
+                            Accounts = accounts,
+                            Institution = institution,
+                            Item = item
+                        });
+                    }
+                    catch
+                    {
+                        // TODO: Add account name to user access item
+                        // then show "action needed" when account require authentication
+                        continue;
+                    }
                 }
                 return userAccessItems;
             }

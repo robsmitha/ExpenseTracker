@@ -44,13 +44,13 @@ namespace Transactions.Infrastructure.Services
             {
                 // get existing transaction category if any
                 transactionCategory = await _context.TransactionCategories
-                    .SingleOrDefaultAsync(t => t.TransactionId == transactionId && t.CategoryId == categoryId);
+                    .SingleOrDefaultAsync(t => t.TransactionId == transactionId);
             }
             catch (InvalidOperationException)
             {
                 // multiple records, delete all and set new transaction category
                 var duplicates = await _context.TransactionCategories
-                    .Where(t => t.TransactionId == transactionId && t.CategoryId == categoryId)
+                    .Where(t => t.TransactionId == transactionId)
                     .ToListAsync();
                 _context.RemoveRange(duplicates);
                 await _context.SaveChangesAsync(); 

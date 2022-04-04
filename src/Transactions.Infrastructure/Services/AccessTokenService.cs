@@ -24,8 +24,14 @@ namespace Transactions.Infrastructure.Services
 
         public async Task<List<AccessTokenModel>> GetAccessTokensAsync(string userId)
         {
-            var accessToken = await _context.AccessTokens.Where(a => a.UserId == userId).ToListAsync();
+            var accessToken = await _context.UserAccessItems.Where(a => a.UserId == userId).ToListAsync();
             return _mapper.Map<List<AccessTokenModel>>(accessToken);
+        }
+
+        public async Task<AccessTokenModel> GetAccessTokenAsync(string userId, string itemId)
+        {
+            var accessToken = await _context.UserAccessItems.FirstOrDefaultAsync(a => a.UserId == userId && a.ItemId == itemId);
+            return _mapper.Map<AccessTokenModel>(accessToken);
         }
 
         public async Task<AccessTokenModel> SetAccessTokenAsync(string userId, string accessToken, string itemId)
@@ -38,7 +44,7 @@ namespace Transactions.Infrastructure.Services
             };
             await _context.AddAsync(userAccessItem);
             await _context.SaveChangesAsync();
-            return _mapper.Map<AccessTokenModel>(accessToken);
+            return _mapper.Map<AccessTokenModel>(userAccessItem);
         }
     }
 }

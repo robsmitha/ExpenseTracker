@@ -23,7 +23,7 @@ export const Home: FunctionComponent = () => {
     }, []);
   
     return (
-        <Grid container spacing={2} pt={2}>
+        <Grid container spacing={2}>
             <Grid item xs>
                 <Typography variant='h3'>Link new account</Typography>
                     {token === null 

@@ -35,5 +35,17 @@ namespace Transactions.Api.Controllers
         {
             return Ok(await _mediator.Send(new SetTransactionCategoryCommand(model.TransactionId, model.CategoryId)));
         }
+
+        [HttpPost("BulkUpdateTransactionCategory")]
+        public async Task<ActionResult<List<TransactionCategoryModel>>> BulkUpdateTransactionCategory(List<TransactionCategoryModel> model)
+        {
+            var results = new List<TransactionCategoryModel>();
+            foreach (var item in model)
+            {
+                var result = await _mediator.Send(new SetTransactionCategoryCommand(item.TransactionId, item.CategoryId));
+                results.Add(result);
+            }
+            return Ok(results);
+        }
     }
 }

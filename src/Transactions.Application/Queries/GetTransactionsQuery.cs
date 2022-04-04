@@ -14,9 +14,11 @@ namespace Transactions.Application.Queries
     public class GetTransactionsQuery : IRequest<List<TransactionModel>>
     {
         private string UserId { get; set; }
+        private string ItemId { get; set; }
         private DateTime StartDate { get; set; }
         private DateTime EndDate { get; set; }
-        public GetTransactionsQuery(string userId, DateTime startDate, DateTime endDate)
+        public GetTransactionsQuery(string userId, string itemId,
+            DateTime? startDate = null, DateTime? endDate = null)
         {
             if (string.IsNullOrEmpty(userId))
             {
@@ -28,9 +30,15 @@ namespace Transactions.Application.Queries
                 throw new ArgumentException($"{nameof(startDate)} value \"{startDate}\" cannot be after {nameof(endDate)} value \"{endDate}\"");
             }
 
+            var now = DateTime.Now;
+            startDate ??= new DateTime(now.Year, now.Month, 1);
+            endDate ??= startDate.Value.AddMonths(1).AddDays(-1);
+
+
             UserId = userId;
-            StartDate = startDate;
-            EndDate = endDate;
+            ItemId = itemId;
+            StartDate = startDate.Value;
+            EndDate = endDate.Value;
         }
 
         public class Handler : IRequestHandler<GetTransactionsQuery, List<TransactionModel>>
@@ -46,14 +54,12 @@ namespace Transactions.Application.Queries
 
             public async Task<List<TransactionModel>> Handle(GetTransactionsQuery request, CancellationToken cancellationToken)
             {
-                var accessTokens = await _accessTokenService.GetAccessTokensAsync(request.UserId);
-                var list = new List<List<TransactionModel>>();
-                foreach (var accessToken in accessTokens)
+                var accessToken = await _accessTokenService.GetAccessTokenAsync(request.UserId, request.ItemId);
+                if(accessToken != null)
                 {
-                    var transactions = await _financialService.GetTransactionsAsync(request.UserId, request.StartDate, request.EndDate);
-                    list.Add(transactions);
+                    return await _financialService.GetTransactionsAsync(accessToken.AccessToken, request.StartDate, request.EndDate);
                 }
-                return list.SelectMany(l => l.ToList()).ToList();
+                throw new Exception(); // MissingAccessTokenException
             }
         }
     }

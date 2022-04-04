@@ -1,41 +1,40 @@
 import { send } from './api.service'
-import { authService } from './auth.service'
 export const transactionService = {
     getUserAccessItems,
+    getTransactions,
     createLinkToken,
     setAccessToken
 };
 
 async function getUserAccessItems() {
-    const token = authService.getToken()
-    var request = {
-        method: 'get',
-        headers: { 
-            'Authorization': `Bearer ${token}` 
-        }
+    const request = {
+        method: 'get'
     }
     return send(`/transactions/getUserAccessItems`, request)
 }
 
+async function getTransactions(itemId: string, startDate: Date | null = null, endDate: Date | null = null) {
+    const request = {
+        method: 'get'
+    }
+    return send(`/transactions/${itemId}`, request)
+}
+
 async function createLinkToken () {
-    const token = authService.getToken()
-    var request = {
+    const request = {
         method: 'post',
         headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` 
+            'Content-Type': 'application/json'
         }
     }
     return send(`/transactions/createLinkToken`, request)
 }
 
 async function setAccessToken (publicToken: string) {
-    const token = authService.getToken()
-    var request = {
+    const request = {
         method: 'post',
         headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` 
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify({ public_token: publicToken })
     }

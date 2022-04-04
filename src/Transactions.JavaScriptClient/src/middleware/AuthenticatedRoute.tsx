@@ -2,9 +2,9 @@ import {
     useLocation,
     Navigate
   } from "react-router-dom";
-  import { useUserContext } from './../context/UserContext'; 
+  import { useUserContext } from '../context/UserContext'; 
 
-function RequireAuth({ children }: { children: JSX.Element }) {
+function AuthenticatedRoute({ children }: { children: JSX.Element }) {
 
     const { authenticated } = useUserContext();
     const location = useLocation();
@@ -19,4 +19,4 @@ function RequireAuth({ children }: { children: JSX.Element }) {
 
     return children;
 }
-export default RequireAuth;
+export default AuthenticatedRoute;

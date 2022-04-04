@@ -1,13 +1,17 @@
 import { FunctionComponent, useEffect, useState } from 'react';
 import { useUserContext } from './../context/UserContext';
 import { useNavigate } from 'react-router-dom';
+import { authService } from './../services/auth.service'
 import {
-    Typography
+    Typography,
+    Grid,
+    Button
 } from '@mui/material';
 
 export const Authorize: FunctionComponent = () => {
+    const [b2cLoginUrl] = useState(process.env.REACT_APP_B2C_SIGN_UP_SIGN_IN_ENDPOINT || '');
     const [ error, setError ] = useState<string | null>();
-    const { authenticated, setAuthenticated } = useUserContext()
+    const { setAuthenticated } = useUserContext()
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -17,10 +21,10 @@ export const Authorize: FunctionComponent = () => {
             const token = params.get('id_token');
             if(token) {
                 setAuthenticated(true, token);
-                localStorage.setItem("appUser", JSON.stringify({
+                authService.setAppUser({
                     token,
                     authenticated: true
-                }));
+                })
                 navigate('/');
             }
             else {
@@ -31,9 +35,28 @@ export const Authorize: FunctionComponent = () => {
       }, []);
     
     return (
-        <Typography variant="h1">
-            {error}
-        </Typography>
+        <Grid>
+        <Grid item md={6}>
+            <Typography variant="h3" component="div">
+                Sign in Error
+            </Typography>
+            <Typography variant="h6" component="div">
+                {error}
+            </Typography>
+            <Grid container spacing={2} pt={2}>
+                <Grid item xs={6}>
+                    <Button fullWidth variant="contained" href={b2cLoginUrl}>
+                        Try Again
+                    </Button>
+                </Grid>
+                <Grid item xs={6}>
+                    <Button fullWidth variant="outlined" onClick={() => navigate('/')}>
+                        Go Home
+                    </Button>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Grid>
         
     )
   };

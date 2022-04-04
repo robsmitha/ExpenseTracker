@@ -25,13 +25,10 @@ namespace Transactions.Api.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<List<TransactionModel>>> GetTransactions()
+        [HttpGet("{itemId}")]
+        public async Task<ActionResult<List<TransactionModel>>> GetTransactions(string itemId, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
         {
-            var now = DateTime.Now;
-            var firstDayOfMonth = new DateTime(now.Year, now.Month, 1);
-            var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
-            return Ok(await _mediator.Send(new GetTransactionsQuery(UserId, firstDayOfMonth, lastDayOfMonth)));
+            return Ok(await _mediator.Send(new GetTransactionsQuery(UserId, itemId, startDate, endDate)));
         }
 
         [HttpGet("GetUserAccessItems")]

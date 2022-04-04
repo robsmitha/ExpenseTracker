@@ -7,8 +7,8 @@ import {
 
 
 // Components
-import Layout from "./components/Layout";
-import RequireAuth from "./components/RequireAuth";
+import Layout from "./layout/DefaultLayout";
+import Authenticated from "./middleware/AuthenticatedRoute";
 
 // Routes
 import Home from "./routes/home";
@@ -16,6 +16,7 @@ import SignOut from "./routes/signout";
 import Authorize from "./routes/authorize";
 import Accounts from "./routes/accounts";
 import LinkAccount from "./routes/linkaccount";
+import Transactions from "./routes/transactions";
 
 
 export interface IAppProps {};
@@ -29,19 +30,24 @@ export const App: React.FunctionComponent<IAppProps> = (props) => {
             <Route path="/" element={<Home />} />
             <Route path="/authorize" element={<Authorize />} />
             <Route path="/sign-out" element={
-            <RequireAuth>
+            <Authenticated>
               <SignOut />
-            </RequireAuth>
+            </Authenticated>
             } />
             <Route path="/accounts" element={
-            <RequireAuth>
+            <Authenticated>
               <Accounts />
-            </RequireAuth>
+            </Authenticated>
             } />
             <Route path="/link-account" element={
-            <RequireAuth>
+            <Authenticated>
               <LinkAccount />
-            </RequireAuth>
+            </Authenticated>
+            } />
+            <Route path="/transactions/:itemId" element={
+            <Authenticated>
+              <Transactions />
+            </Authenticated>
             } />
           </Route>
       </Routes>
