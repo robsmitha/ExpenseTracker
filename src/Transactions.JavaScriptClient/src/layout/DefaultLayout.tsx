@@ -10,12 +10,13 @@ import MuiDrawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
 import CssBaseline from '@mui/material/CssBaseline';
 import Divider from '@mui/material/Divider';
-import MenuIcon from '@mui/icons-material/Menu';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
-
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import AddLinkIcon from '@mui/icons-material/AddLink';
 import AppBar from './AppBar';
 
 const drawerWidth = 240;
@@ -76,21 +77,21 @@ export default function DefaultLayout() {
   });
   const [publicPages] = useState([
     {
-      text: "Home",
-      path: '/',
-      icon : <MenuIcon />
+      text: "Dashboard",
+      path: '/dashboard',
+      icon : <DashboardIcon />
     }
   ]);
   const [drawerItems] = useState([
     {
       text: "Accounts",
       path: '/accounts',
-      icon : <MenuIcon />
+      icon : <AccountBalanceIcon />
     },
     {
       text: "Link Account",
       path: '/link-account',
-      icon : <InboxIcon />
+      icon : <AddLinkIcon />
     }
   ]);
 
@@ -109,7 +110,7 @@ export default function DefaultLayout() {
     }}>
       <Box sx={{ flexGrow: 1, display: 'flex' }}>
         <CssBaseline />
-        <AppBar openMenuFunc={() => { open ? handleDrawerClose() : handleDrawerOpen() }} />
+        <AppBar showExpandMenu={true} openMenuFunc={() => { open ? handleDrawerClose() : handleDrawerOpen() }} />
         <Drawer 
         variant="permanent" 
         open={open}

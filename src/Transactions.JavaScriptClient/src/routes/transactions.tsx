@@ -2,7 +2,8 @@ import { FunctionComponent, useState, useEffect } from 'react';
 import {
     Skeleton,
     Button,
-    Grid
+    Grid,
+    Typography
 } from '@mui/material';
 import { DataGrid, GridColDef, GridValueGetterParams, GridSelectionModel } from '@mui/x-data-grid';
 
@@ -10,7 +11,7 @@ import { transactionService } from './../services/transaction.service'
 import { categoryService } from '../services/category.service'
 import { useParams } from 'react-router-dom';
 import TransactionList from './../components/TransactionList'
-import CategoriesAutoComplete from './../components/CategoriesAutoComplete'
+import CategoryAutoComplete from '../components/CategoriesAutocomplete'
 
 const columns: GridColDef[] = [
   {
@@ -51,8 +52,9 @@ export const Transactions: FunctionComponent = () => {
     const { itemId } = useParams();
     const [transactions, setTransactions] = useState<Array<any>>([]);
     const [categories, setCategories] = useState<Array<any>>([]);
-    const [category, setCategory] = useState<string>();
 
+    const [errorText, setErrorText] = useState<string | null>(null);
+    const [category, setCategory] = useState<any | null>(null);
     const [selectionModel, setSelectionModel] = useState<GridSelectionModel>([]);
 
     useEffect(() => {
@@ -79,41 +81,70 @@ export const Transactions: FunctionComponent = () => {
       }
     }
 
-    async function setTransactionsCategory(){
+    async function setTransactionsCategory(category: any){
       const data = selectionModel?.map(transactionId => {
         return {
           transactionId: transactionId,
-          categoryId: category
+          categoryId: category.id
         }
       });
       const response = await categoryService.bulkUpdateTransactionCategory(data);
       if(response){
+        // fetch updated transactions
         await getTransactions()
+
+        // reset selections
         setSelectionModel([])
-        setCategory('')
+
+        // reset category
+        setCategory(null)
       }
     }
 
-    function handleChange(_: any, value: any){
-      setCategory(value.id)
+    async function onSetCategory(value: any) {
+      setErrorText(null)
+      if(!value.id){
+        const response = await categoryService.saveCategory(value);
+        if(response.errors) {
+          const msg = Object.keys(response.errors)
+                        .map((e: any) => response.errors[e].toString())
+                        .join(", ")
+          setErrorText(msg)
+          return;
+        } 
+        value.id = response.id;
+        await getCategories();
+      }
+      setCategory(value)
+      setTransactionsCategory(value);
     }
 
     return (
         <Grid container spacing={2}>
             <Grid item xs>
+                <Typography variant='h3'>
+                  Transactions
+                </Typography>
                 {!transactions 
                 ? <Skeleton /> 
                 : <Grid container spacing={2}>
-                    <Grid item xs={10}>
-                      <CategoriesAutoComplete handleChange={handleChange} cateogories={categories} />
-                    </Grid>
-                    <Grid item xs={2}>
-                      <Button fullWidth variant="contained" size="large" onClick={setTransactionsCategory}>
-                        Update
-                      </Button>
-                    </Grid>
+                  <Grid item xs={12}>
+                    <CategoryAutoComplete 
+                      label="Select Category" 
+                      value={category} 
+                      setValue={onSetCategory} 
+                      cateogories={categories} 
+                      disabled={selectionModel.length === 0}
+                      errorText={errorText}
+                    />
+                  </Grid>
                     <Grid item xs={12}>
-                      <TransactionList items={transactions} columns={columns} selectionModel={selectionModel} setSelectionModel={setSelectionModel} />
+                      <TransactionList 
+                        items={transactions} 
+                        columns={columns} 
+                        selectionModel={selectionModel} 
+                        setSelectionModel={setSelectionModel} 
+                      />
                     </Grid>
                   </Grid>}
             </Grid>

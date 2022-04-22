@@ -28,7 +28,11 @@ export const Home: FunctionComponent = () => {
                 <Typography variant='h3'>Link new account</Typography>
                     {token === null 
                     ? <div>Loading..</div> 
-                    : <PlaidLink token={token} />}
+                    : <Grid>
+                        <Grid item xs={12} sm={6} md={3}>
+                          <PlaidLink token={token} />
+                        </Grid>
+                      </Grid>}
             </Grid>
         </Grid>
         

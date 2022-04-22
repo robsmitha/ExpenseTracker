@@ -27,6 +27,25 @@ namespace Transactions.Infrastructure.Services
             var categories = await _context.Categories.ToListAsync();
             return _mapper.Map<List<CategoryModel>>(categories);
         }
+        
+        public async Task<CategoryModel> AddCategoryAsync(CategoryModel model)
+        {
+            var category = new Category
+            {
+                Name = model.Name
+            };
+            await _context.AddAsync(category);
+            await _context.SaveChangesAsync();
+            return _mapper.Map<CategoryModel>(category);
+        }
+
+        public async Task<CategoryModel> UpdateCategoryAsync(CategoryModel model)
+        {
+            var category = await _context.Categories.FindAsync(model.Id);
+            category.Name = model.Name;
+            await _context.SaveChangesAsync();
+            return _mapper.Map<CategoryModel>(category);
+        }
 
         public async Task<List<TransactionCategoryModel>> GetTransactionCategoriesAsync(List<string> transactionIds = null)
         {

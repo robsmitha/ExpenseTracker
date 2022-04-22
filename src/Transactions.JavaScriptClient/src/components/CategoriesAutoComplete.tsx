@@ -1,25 +1,135 @@
 import * as React from 'react';
 import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogActions from '@mui/material/DialogActions';
+import Button from '@mui/material/Button';
+import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 
+const filter = createFilterOptions<CategoryOptionType>();
 
 interface Props {
     cateogories: Array<any>;
-    handleChange: (_: any, value: any) => void
+    value: any | undefined;
+    disabled?: boolean | undefined;
+    setValue: (value: any) => void;
+    label: string;
+    errorText: string | null;
 }
 
-const CategoriesAutoComplete: React.FunctionComponent<Props> = ({ cateogories, handleChange }) => {
-    return (
-        <Autocomplete
-          disablePortal
-          id="combo-box-categories"
-          options={cateogories}
-          sx={{ width: 'auto' }}
-          onChange={handleChange}
-          isOptionEqualToValue={(option, value) => option.id === value.id}
-          renderInput={(params) => <TextField {...params} label="Category" />}
-        />
-      );
+const CategoryAutoComplete: React.FunctionComponent<Props> = ({ cateogories, value, setValue, disabled, label, errorText }) => {
+  const [open, toggleOpen] = React.useState(false);
+
+  const handleClose = () => {
+    setDialogValue({
+      name: ''
+    });
+    toggleOpen(false);
+  };
+
+  const [dialogValue, setDialogValue] = React.useState({
+    name: ''
+  });
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setValue({
+      name: dialogValue.name
+    });
+    handleClose();
+  };
+
+  return (
+    <React.Fragment>
+      <Autocomplete
+        value={value}
+        disabled={disabled}
+        onChange={(event, newValue) => {
+          if (typeof newValue === 'string') {
+            // timeout to avoid instant validation of the dialog's form.
+            setTimeout(() => {
+              toggleOpen(true);
+              setDialogValue({
+                name: newValue,
+              });
+            });
+          } else if (newValue && newValue.inputValue) {
+            toggleOpen(true);
+            setDialogValue({
+              name: newValue.inputValue,
+            });
+          } else {
+            setValue(newValue);
+          }
+        }}
+        filterOptions={(options, params) => {
+          const filtered = filter(options, params);
+
+          if (filtered.length === 0 && params.inputValue !== '') {
+            filtered.push({
+              inputValue: params.inputValue,
+              name: `Add "${params.inputValue}"`
+            });
+          }
+
+          return filtered;
+        }}
+        id="categories-autocomplete"
+        options={cateogories}
+        getOptionLabel={(option) => {
+          // e.g value selected with enter, right from the input
+          if (typeof option === 'string') {
+            return option;
+          }
+          if (option.inputValue) {
+            return option.inputValue;
+          }
+          return option.name;
+        }}
+        selectOnFocus
+        clearOnBlur
+        handleHomeEndKeys
+        renderOption={(props, option) => <li {...props}>{option.name}</li>}
+        // sx={{ width: 300 }}
+        freeSolo
+        renderInput={(params) => <TextField {...params} error={(errorText?.length ?? 0) > 0} helperText={errorText} label={label} />}
+      />
+      <Dialog open={open} onClose={handleClose}>
+        <form onSubmit={handleSubmit}>
+          <DialogTitle>Add a new category</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Need a new category? Please, add it!
+            </DialogContentText>
+            <TextField
+              autoFocus
+              id="name"
+              value={dialogValue.name}
+              onChange={(event) =>
+                setDialogValue({
+                  name: event.target.value,
+                })
+              }
+              label="name"
+              type="text"
+              variant="standard"
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button type="submit">Add</Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+    </React.Fragment>
+  );
 }
 
-export default CategoriesAutoComplete;
+export default CategoryAutoComplete;
+
+interface CategoryOptionType {
+  inputValue?: string;
+  name: string;
+}

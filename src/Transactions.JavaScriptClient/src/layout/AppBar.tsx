@@ -17,9 +17,10 @@ import { useUserContext } from './../context/UserContext'
 
 interface Props {
     openMenuFunc?: () => void;
+    showExpandMenu: boolean;
 }
 
-const ResponsiveAppBar: React.FunctionComponent<Props> = ({ openMenuFunc }) => {
+const ResponsiveAppBar: React.FunctionComponent<Props> = ({ openMenuFunc, showExpandMenu }) => {
     const navigate = useNavigate();
     const theme = useTheme();
     const [b2cLoginUrl] = React.useState(process.env.REACT_APP_B2C_SIGN_UP_SIGN_IN_ENDPOINT || '');
@@ -42,7 +43,7 @@ const ResponsiveAppBar: React.FunctionComponent<Props> = ({ openMenuFunc }) => {
         >
           <Container maxWidth="xl">
             <Toolbar disableGutters>
-            <IconButton
+            {showExpandMenu && <IconButton
                 color="inherit"
                 aria-label="open drawer"
                 onClick={openMenuFunc}
@@ -52,14 +53,14 @@ const ResponsiveAppBar: React.FunctionComponent<Props> = ({ openMenuFunc }) => {
                 }}
               >
                 <MenuIcon />
-              </IconButton>
+              </IconButton>}
               <Button
-                    onClick={() => navigate('/')}
+                    onClick={() => navigate(!authenticated ? '/' : '/dashboard')}
                     sx={{ my: 2, color: 'white', display: 'block' }}
                 >
                     Expense Tracker
                 </Button>
-              <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }} />
+              <Box sx={{ flexGrow: 1, display: { xs: 'flex' } }} />
               {!authenticated 
               ? <Box sx={{ flexGrow: 0 }}>
                   <Button 
@@ -91,6 +92,9 @@ const ResponsiveAppBar: React.FunctionComponent<Props> = ({ openMenuFunc }) => {
                   open={Boolean(anchorElUser)}
                   onClose={handleCloseUserMenu}
                   >
+                  <MenuItem onClick={() => navigate('dashboard')}>
+                      <Typography textAlign="center">Dashboard</Typography>
+                  </MenuItem>
                   <MenuItem onClick={() => navigate('sign-out')}>
                       <Typography textAlign="center">Sign Out</Typography>
                   </MenuItem>

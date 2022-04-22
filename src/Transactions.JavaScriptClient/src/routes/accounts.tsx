@@ -1,7 +1,8 @@
 import { FunctionComponent, useState, useEffect } from 'react';
 import {
     Skeleton,
-    Grid
+    Grid,
+    Typography
 } from '@mui/material';
 
 import { transactionService } from './../services/transaction.service'
@@ -21,6 +22,7 @@ export const Accounts: FunctionComponent = () => {
     return (
         <Grid container spacing={2}>
             <Grid item xs>
+                <Typography variant='h3'>Accounts</Typography>
                 {!accessItems 
                 ? <Skeleton /> 
                 : <AccountList items={accessItems} />}

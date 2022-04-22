@@ -12,5 +12,8 @@ namespace Transactions.Application.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
+
+
+        public bool IsExisting => Id > 0;
     }
 }

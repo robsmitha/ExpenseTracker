@@ -25,7 +25,7 @@ export const Authorize: FunctionComponent = () => {
                     token,
                     authenticated: true
                 })
-                navigate('/');
+                navigate('/dashboard');
             }
             else {
                 setError('Token not present');

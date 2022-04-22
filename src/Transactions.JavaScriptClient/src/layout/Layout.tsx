@@ -22,8 +22,8 @@ const Layout: FunctionComponent<LayoutProps> = (props) => {
             authenticated,
             setAuthenticated
         }}>
-            <Box sx={{ display: 'flex', pt: 4 }}>
-                <AppBar />
+            <Box sx={{ display: 'flex', pt: 5 }}>
+                <AppBar showExpandMenu={false} openMenuFunc={() => {}} />
                 <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
                     <Outlet />
                 </Box>

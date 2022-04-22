@@ -4,6 +4,9 @@ import {
   PlaidLinkOptions,
   PlaidLinkOnSuccess,
 } from "react-plaid-link";
+import {
+  Button
+} from '@mui/material';
 import { transactionService } from './../services/transaction.service'
 
 interface Props {
@@ -28,9 +31,9 @@ const PlaidLink: FunctionComponent<Props> = ({ token }) => {
   const { open, ready, error } = usePlaidLink(config);
 
   return (
-    <button className="btn btn-primary" onClick={() => open()} disabled={!ready}>
+    <Button fullWidth variant="contained" size="large" onClick={() => open()} disabled={!ready}>
       Connect a bank account
-    </button>
+    </Button>
   );
 };
 

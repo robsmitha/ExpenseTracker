@@ -22,15 +22,20 @@ export async function send(func: string, request: any) {
             return data
         } else {
             switch(response.status){
+                case 400:
+                    const errors = await response.json()
+                    return {
+                        errors
+                    }
                 case 401: 
                     authService.clearToken();
                     window.location.href = '/';
-                    return 'Unauthorized api call'
+                    throw new Error('Unauthorized api call');
                 default: 
-                    return JSON.stringify(response)
+                    throw new Error(JSON.stringify(response));
             }
         }
-    } catch (error: any) {
-        return error.message
+    } catch (err) {
+        console.error(err)
     }
 }
