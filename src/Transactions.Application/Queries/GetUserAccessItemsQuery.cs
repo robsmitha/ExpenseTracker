@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Transactions.Application.Constants;
+using Transactions.Application.Exceptions;
 using Transactions.Application.Interfaces;
 using Transactions.Application.Models;
 
@@ -12,11 +14,6 @@ namespace Transactions.Application.Queries
 {
     public class GetUserAccessItemsQuery : IRequest<List<UserAccessItemModel>>
     {
-        public string UserId { get; set; }
-        public GetUserAccessItemsQuery(string userId)
-        {
-            UserId = userId;
-        }
         public class Handler : IRequestHandler<GetUserAccessItemsQuery, List<UserAccessItemModel>>
         {
             private readonly IFinancialService _financialService;
@@ -30,27 +27,32 @@ namespace Transactions.Application.Queries
 
             public async Task<List<UserAccessItemModel>> Handle(GetUserAccessItemsQuery request, CancellationToken cancellationToken)
             {
-                var accessTokens = await _accessTokenService.GetAccessTokensAsync(request.UserId);
-
+                var accessTokens = await _accessTokenService.GetAccessTokensAsync();
+                var expiredAccessTokens = new List<ExpiredAccessItem>();
                 var userAccessItems = new List<UserAccessItemModel>();
                 foreach(var accessToken in accessTokens)
                 {
+                    var institution = await _financialService.GetInstitutionAsync(accessToken.InstitutionId);
                     try
                     {
                         var accounts = await _financialService.GetAccountsAsync(accessToken.AccessToken);
                         var item = await _financialService.GetItemAsync(accessToken.AccessToken);
-                        var institution = await _financialService.GetInstitutionAsync(item.InstitutionId);
                         userAccessItems.Add(new UserAccessItemModel
                         {
                             Accounts = accounts,
                             Institution = institution,
-                            Item = item
+                            Item = item,
+                            UserAccessItemId = accessToken.Id
                         });
                     }
-                    catch
+                    catch (FinancialServiceException fex)
                     {
-                        // TODO: Add account name to user access item
-                        // then show "action needed" when account require authentication
+                        if(string.Equals(fex.Error?.error_code, ErrorCodes.ITEM_LOGIN_REQUIRED, 
+                            StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            expiredAccessTokens.Add(new ExpiredAccessItem(accessToken.AccessToken, fex.Error.error_message, institution));
+                        }
+
                         continue;
                     }
                 }

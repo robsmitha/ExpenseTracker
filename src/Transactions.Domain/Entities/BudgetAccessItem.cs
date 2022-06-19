@@ -7,15 +7,14 @@ using System.Threading.Tasks;
 
 namespace Transactions.Domain.Entities
 {
-    public class TransactionCategory
+    public class BudgetAccessItem
     {
         public int Id { get; set; }
-        public string TransactionId { get; set; }
-        public int CategoryId { get; set; }
-        [ForeignKey(nameof(CategoryId))]
-        public Category Category { get; set; }
         public int BudgetId { get; set; }
         [ForeignKey(nameof(BudgetId))]
         public Budget Budget { get; set; }
+        public int UserAccessItemId { get; set; }
+        [ForeignKey(nameof(UserAccessItemId))]
+        public UserAccessItem UserAccessItem { get; set; }
     }
 }

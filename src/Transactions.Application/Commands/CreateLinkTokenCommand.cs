@@ -13,11 +13,13 @@ namespace Transactions.Application.Commands
 {
     public class CreateLinkTokenCommand : IRequest<LinkTokenModel>
     {
-        public string UserId { get; set; }
-        public CreateLinkTokenCommand(string userId)
+        public string AccessToken { get; set; }
+
+        public CreateLinkTokenCommand(string accessToken)
         {
-            UserId = userId;
+            AccessToken = accessToken;
         }
+
         public class Handler : IRequestHandler<CreateLinkTokenCommand, LinkTokenModel>
         {
             private readonly ILogger<CreateLinkTokenCommand> _logger;
@@ -31,7 +33,7 @@ namespace Transactions.Application.Commands
 
             public async Task<LinkTokenModel> Handle(CreateLinkTokenCommand request, CancellationToken cancellationToken)
             {
-                return await _financialService.CreateLinkTokenAsync(request.UserId);
+                return await _financialService.CreateLinkTokenAsync(request.AccessToken);
             }
         }
     }

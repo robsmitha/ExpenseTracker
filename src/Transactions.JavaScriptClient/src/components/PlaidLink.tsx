@@ -7,16 +7,19 @@ import {
 import {
   Button
 } from '@mui/material';
-import { transactionService } from './../services/transaction.service'
+import { accessItemService } from '../services/accessItem.service'
 
 interface Props {
   token: string;
+  buttonText: string;
+  reloadAccessItems: () => void;
 }
 
-const PlaidLink: FunctionComponent<Props> = ({ token }) => {
+const PlaidLink: FunctionComponent<Props> = ({ token, buttonText, reloadAccessItems }) => {
   const onSuccess = useCallback<PlaidLinkOnSuccess>(
     async (public_token, metadata) => {
-      await transactionService.setAccessToken(public_token)
+      await accessItemService.setAccessToken(public_token)
+      reloadAccessItems();
     },
     []
   );
@@ -31,8 +34,8 @@ const PlaidLink: FunctionComponent<Props> = ({ token }) => {
   const { open, ready, error } = usePlaidLink(config);
 
   return (
-    <Button fullWidth variant="contained" size="large" onClick={() => open()} disabled={!ready}>
-      Connect a bank account
+    <Button onClick={() => open()} disabled={!ready}>
+      {buttonText}
     </Button>
   );
 };

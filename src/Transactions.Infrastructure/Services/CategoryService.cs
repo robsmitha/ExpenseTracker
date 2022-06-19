@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using Transactions.Application.Extensions;
 using Transactions.Application.Interfaces;
 using Transactions.Application.Models;
 using Transactions.Domain.Entities;
@@ -16,10 +17,12 @@ namespace Transactions.Infrastructure.Services
     {
         private readonly ApplicationContext _context;
         private readonly IMapper _mapper;
-        public CategoryService(ApplicationContext context, IMapper mapper)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public CategoryService(ApplicationContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<List<CategoryModel>> GetCategoriesAsync()
@@ -27,7 +30,8 @@ namespace Transactions.Infrastructure.Services
             var categories = await _context.Categories.ToListAsync();
             return _mapper.Map<List<CategoryModel>>(categories);
         }
-        
+
+
         public async Task<CategoryModel> AddCategoryAsync(CategoryModel model)
         {
             var category = new Category
@@ -56,33 +60,33 @@ namespace Transactions.Infrastructure.Services
             return _mapper.Map<List<TransactionCategoryModel>>(transactionCategories);
         }
 
-        public async Task<TransactionCategoryModel> SetTransactionCategoryAsync(string transactionId, int categoryId)
+        public async Task<TransactionCategoryModel> SetTransactionCategoryAsync(string transactionId, int categoryId, int budgetId)
         {
             TransactionCategory transactionCategory = null;
             try
             {
                 // get existing transaction category if any
                 transactionCategory = await _context.TransactionCategories
-                    .SingleOrDefaultAsync(t => t.TransactionId == transactionId);
+                    .SingleOrDefaultAsync(t => t.BudgetId == budgetId && t.TransactionId == transactionId);
             }
             catch (InvalidOperationException)
             {
                 // multiple records, delete all and set new transaction category
                 var duplicates = await _context.TransactionCategories
-                    .Where(t => t.TransactionId == transactionId)
+                    .Where(t => t.BudgetId == budgetId && t.TransactionId == transactionId)
                     .ToListAsync();
                 _context.RemoveRange(duplicates);
                 await _context.SaveChangesAsync(); 
             }
             finally
             {
-                // create or update transactionCategory
                 if (transactionCategory == null)
                 {
                     transactionCategory = new TransactionCategory
                     {
                         TransactionId = transactionId,
-                        CategoryId = categoryId
+                        CategoryId = categoryId,
+                        BudgetId = budgetId
                     };
                     await _context.AddAsync(transactionCategory);
                 }

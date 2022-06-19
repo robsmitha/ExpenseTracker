@@ -13,6 +13,6 @@ namespace Transactions.Application.Interfaces
         Task<CategoryModel> AddCategoryAsync(CategoryModel model);
         Task<CategoryModel> UpdateCategoryAsync(CategoryModel model);
         Task<List<TransactionCategoryModel>> GetTransactionCategoriesAsync(List<string> transactionIds = null);
-        Task<TransactionCategoryModel> SetTransactionCategoryAsync(string transactionId, int categoryId);
+        Task<TransactionCategoryModel> SetTransactionCategoryAsync(string transactionId, int categoryId, int budgetId);
     }
 }

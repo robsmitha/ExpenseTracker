@@ -16,9 +16,8 @@ import Home from "./routes/home";
 import SignOut from "./routes/signout";
 import Authorize from "./routes/authorize";
 import Accounts from "./routes/accounts";
-import LinkAccount from "./routes/linkaccount";
 import Transactions from "./routes/transactions";
-import Dashboard from "./routes/dashboard";
+import Budgets from "./routes/budgets";
 
 
 export interface IAppProps {};
@@ -33,9 +32,9 @@ export const App: React.FunctionComponent<IAppProps> = (props) => {
           <Route path="/authorize" element={<Authorize />} />
         </Route>
         <Route path="/" element={<DefaultLayout />}>
-          <Route path="/dashboard" element={
+          <Route path="/budgets" element={
           <Authenticated>
-            <Dashboard />
+            <Budgets />
           </Authenticated>
           } />
           <Route path="/sign-out" element={
@@ -48,12 +47,7 @@ export const App: React.FunctionComponent<IAppProps> = (props) => {
             <Accounts />
           </Authenticated>
           } />
-          <Route path="/link-account" element={
-          <Authenticated>
-            <LinkAccount />
-          </Authenticated>
-          } />
-          <Route path="/transactions/:itemId" element={
+          <Route path="/transactions/:budgetId" element={
           <Authenticated>
             <Transactions />
           </Authenticated>

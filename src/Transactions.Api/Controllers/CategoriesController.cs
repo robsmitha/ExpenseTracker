@@ -14,12 +14,11 @@ namespace Transactions.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoriesController : BaseApiController<CategoriesController>
+    public class CategoriesController : ControllerBase
     {
         private readonly IMediator _mediator;
 
-        public CategoriesController(IMediator mediator, ILogger<CategoriesController> logger, IHttpContextAccessor httpContextAccessor)
-            : base(logger, httpContextAccessor)
+        public CategoriesController(IMediator mediator)
         {
             _mediator = mediator;
         }
@@ -30,28 +29,10 @@ namespace Transactions.Api.Controllers
             return Ok(await _mediator.Send(new GetCategoriesQuery()));
         }
 
-        [HttpPost("SaveCategory")]
+        [HttpPost]
         public async Task<ActionResult<CategoryModel>> SaveCategory(CategoryModel model)
         {
             return Ok(await _mediator.Send(new SaveCategoryCommand(model)));
-        }
-
-        [HttpPost("SetTransactionCategory")]
-        public async Task<ActionResult<TransactionCategoryModel>> SetTransactionCategory(TransactionCategoryModel model)
-        {
-            return Ok(await _mediator.Send(new SetTransactionCategoryCommand(model.TransactionId, model.CategoryId)));
-        }
-
-        [HttpPost("BulkUpdateTransactionCategory")]
-        public async Task<ActionResult<List<TransactionCategoryModel>>> BulkUpdateTransactionCategory(List<TransactionCategoryModel> model)
-        {
-            var results = new List<TransactionCategoryModel>();
-            foreach (var item in model)
-            {
-                var result = await _mediator.Send(new SetTransactionCategoryCommand(item.TransactionId, item.CategoryId));
-                results.Add(result);
-            }
-            return Ok(results);
         }
     }
 }

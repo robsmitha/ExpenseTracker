@@ -7,8 +7,8 @@ import {
 } from '@mui/material';
 import { DataGrid, GridColDef, GridValueGetterParams, GridSelectionModel } from '@mui/x-data-grid';
 
-import { transactionService } from './../services/transaction.service'
-import { categoryService } from '../services/category.service'
+import { categoryService } from './../services/category.service'
+import { budgetService } from '../services/budget.service'
 import { useParams } from 'react-router-dom';
 import TransactionList from './../components/TransactionList'
 import CategoryAutoComplete from '../components/CategoriesAutocomplete'
@@ -49,7 +49,7 @@ const columns: GridColDef[] = [
 ];
 
 export const Transactions: FunctionComponent = () => {
-    const { itemId } = useParams();
+    const { budgetId } = useParams();
     const [transactions, setTransactions] = useState<Array<any>>([]);
     const [categories, setCategories] = useState<Array<any>>([]);
 
@@ -63,32 +63,29 @@ export const Transactions: FunctionComponent = () => {
     }, []);
     
     async function getCategories() {
-      if(itemId){
-        const response = await categoryService.getCategories();
+      const response = await categoryService.getCategories();
         setCategories(response.map((c: any) => {
           return {
             ...c,
             label: c.name
           };
         }))
-      }
     }
 
     async function getTransactions() {
-      if(itemId){
-        const response = await transactionService.getTransactions(itemId);
-        setTransactions(response)
-      }
+      const response = await budgetService.getBudget(Number(budgetId));
+      setTransactions(response.transactions)
     }
 
     async function setTransactionsCategory(category: any){
       const data = selectionModel?.map(transactionId => {
         return {
           transactionId: transactionId,
-          categoryId: category.id
+          categoryId: category.id,
+          budgetId: budgetId
         }
       });
-      const response = await categoryService.bulkUpdateTransactionCategory(data);
+      const response = await budgetService.bulkUpdateTransactionCategory(data);
       if(response){
         // fetch updated transactions
         await getTransactions()

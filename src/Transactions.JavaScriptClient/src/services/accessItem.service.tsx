@@ -1,23 +1,16 @@
 import { send } from './api.service'
-export const transactionService = {
+export const accessItemService = {
     getUserAccessItems,
-    getTransactions,
     createLinkToken,
     setAccessToken
 };
+
 
 async function getUserAccessItems() {
     const request = {
         method: 'get'
     }
-    return send(`/transactions/getUserAccessItems`, request)
-}
-
-async function getTransactions(itemId: string, startDate: Date | null = null, endDate: Date | null = null) {
-    const request = {
-        method: 'get'
-    }
-    return send(`/transactions/${itemId}`, request)
+    return send(`/accessItems/getUserAccessItems`, request)
 }
 
 async function createLinkToken () {
@@ -27,7 +20,7 @@ async function createLinkToken () {
             'Content-Type': 'application/json'
         }
     }
-    return send(`/transactions/createLinkToken`, request)
+    return send(`/accessItems/createLinkToken`, request)
 }
 
 async function setAccessToken (publicToken: string) {
@@ -38,5 +31,5 @@ async function setAccessToken (publicToken: string) {
         },
         body: JSON.stringify({ public_token: publicToken })
     }
-    return send(`/transactions/setAccessToken`, request)
+    return send(`/accessItems/setAccessToken`, request)
 }

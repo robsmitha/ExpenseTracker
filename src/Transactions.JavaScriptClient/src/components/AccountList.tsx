@@ -14,7 +14,7 @@ const AccountList: React.FunctionComponent<Props> = ({ items }) => {
     <Grid container spacing={2}>
       {items.map((item) => {
         return <Grid item md={3} key={item.item.itemId}>
-          <AccountPreview item={item} />
+            <AccountPreview item={item} />
           </Grid>
       })}
       

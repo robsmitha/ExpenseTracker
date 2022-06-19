@@ -8,12 +8,12 @@ namespace Transactions.Domain.Responses
 {
     public class Error
     {
-        public object display_message { get; set; }
+        public string display_message { get; set; }
         public string documentation_url { get; set; }
         public string error_code { get; set; }
         public string error_message { get; set; }
         public string error_type { get; set; }
         public string request_id { get; set; }
-        public object suggested_action { get; set; }
+        public string suggested_action { get; set; }
     }
 }

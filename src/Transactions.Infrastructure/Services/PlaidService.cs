@@ -1,5 +1,7 @@
 ﻿
 using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
@@ -9,6 +11,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Transactions.Application.Exceptions;
+using Transactions.Application.Extensions;
 using Transactions.Application.Interfaces;
 using Transactions.Application.Models;
 using Transactions.Domain.Responses;
@@ -24,22 +27,31 @@ namespace Transactions.Infrastructure.Services
 
         private readonly ICategoryService _categoryService;
         private readonly IAccessTokenService _accessTokenService;
+        private readonly ILogger<IFinancialService> _logger;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public PlaidService(HttpClient httpClient, IOptions<PlaidSettings> plaidSettings, IMapper mapper,
-            IAccessTokenService accessTokenService, ICategoryService categoryService)
+            IAccessTokenService accessTokenService, ICategoryService categoryService, ILogger<IFinancialService> logger,
+            IHttpContextAccessor httpContextAccessor)
         {
             _client = httpClient;
             _plaidSettings = plaidSettings.Value;
             _mapper = mapper;
             _accessTokenService = accessTokenService;
             _categoryService = categoryService;
+            _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<AccessTokenModel> SetAccessTokenAsync(string userId, string accessToken, string itemId)
+        public async Task<AccessTokenModel> SetAccessTokenAsync(string accessToken)
         {
-            // TODO: Check if access token is valid
-
-            return await _accessTokenService.SetAccessTokenAsync(userId, accessToken, itemId);
+            var item = await GetItemAsync(accessToken);
+            if (item.HasError)
+            {
+                _logger.LogError($"Item [{item.ItemId}] returned error code: {item.ErrorCode}");
+                throw new FinancialServiceException($"Error code: {item.ErrorCode} ({item.ItemId})");
+            }
+            return await _accessTokenService.SetAccessTokenAsync(accessToken, item.ItemId, item.InstitutionId);
         }
 
         public async Task<List<TransactionModel>> GetTransactionsAsync(string accessToken, DateTime startDate, DateTime endDate)
@@ -97,21 +109,35 @@ namespace Transactions.Infrastructure.Services
             return results;
         }
 
-        public async Task<LinkTokenModel> CreateLinkTokenAsync(string userId)
+        public async Task<LinkTokenModel> CreateLinkTokenAsync(string accessToken = null)
         {
-            var response = await PostAsync<CreateLinkTokenResponse>("link/token/create", new
-            {
-                client_id = _plaidSettings.ClientId,
-                secret = _plaidSettings.Secret,
-                user = new
+            var response = string.IsNullOrEmpty(accessToken)
+                ? await PostAsync<CreateLinkTokenResponse>("link/token/create", new
                 {
-                    client_user_id = userId
-                },
-                client_name = "Expense Tracker",
-                products = new[] { "transactions" },
-                country_codes = new[] { "US" },
-                language = "en"
-            });
+                    client_id = _plaidSettings.ClientId,
+                    secret = _plaidSettings.Secret,
+                    user = new
+                    {
+                        client_user_id = _httpContextAccessor.GetUserId()
+                    },
+                    client_name = "Expense Tracker",
+                    products = new[] { "transactions" },
+                    country_codes = new[] { "US" },
+                    language = "en"
+                })
+                : await PostAsync<CreateLinkTokenResponse>("link/token/create", new
+                {
+                    client_id = _plaidSettings.ClientId,
+                    secret = _plaidSettings.Secret,
+                    user = new
+                    {
+                        client_user_id = _httpContextAccessor.GetUserId()
+                    },
+                    client_name = "Expense Tracker",
+                    access_token = accessToken,
+                    country_codes = new[] { "US" },
+                    language = "en"
+                });
 
             return _mapper.Map<LinkTokenModel>(response);
         }
@@ -210,7 +236,7 @@ namespace Transactions.Infrastructure.Services
                 if (!response.IsSuccessStatusCode)
                 {
                     var error = JsonConvert.DeserializeObject<Error>(result);
-                    throw new FinancialServiceException(error.error_message);
+                    throw new FinancialServiceException(error);
                 }
 
                 return JsonConvert.DeserializeObject<T>(result);

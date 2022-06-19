@@ -13,9 +13,8 @@ import Divider from '@mui/material/Divider';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import DashboardIcon from '@mui/icons-material/Dashboard';
+import CalendarMonthIcon from '@mui/icons-material/CalendarViewMonth';
 import AddLinkIcon from '@mui/icons-material/AddLink';
 import AppBar from './AppBar';
 
@@ -77,9 +76,9 @@ export default function DefaultLayout() {
   });
   const [publicPages] = useState([
     {
-      text: "Dashboard",
-      path: '/dashboard',
-      icon : <DashboardIcon />
+      text: "Budgets",
+      path: '/budgets',
+      icon : <CalendarMonthIcon />
     }
   ]);
   const [drawerItems] = useState([
@@ -87,11 +86,6 @@ export default function DefaultLayout() {
       text: "Accounts",
       path: '/accounts',
       icon : <AccountBalanceIcon />
-    },
-    {
-      text: "Link Account",
-      path: '/link-account',
-      icon : <AddLinkIcon />
     }
   ]);
 

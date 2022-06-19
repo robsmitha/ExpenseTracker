@@ -9,8 +9,9 @@ namespace Transactions.Application.Interfaces
 {
     public interface IAccessTokenService
     {
-        Task<List<AccessTokenModel>> GetAccessTokensAsync(string userId);
-        Task<AccessTokenModel> GetAccessTokenAsync(string userId, string itemId);
-        Task<AccessTokenModel> SetAccessTokenAsync(string userId, string accessToken, string itemId);
+        Task<List<AccessTokenModel>> GetAccessTokensAsync();
+        Task<AccessTokenModel> GetAccessTokenAsync(string itemId);
+        Task<AccessTokenModel> SetAccessTokenAsync(string accessToken, string itemId, string institutionId);
+        Task<List<AccessTokenModel>> GetBudgetAccessTokensAsync(int budgetId);
     }
 }

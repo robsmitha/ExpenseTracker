@@ -25,7 +25,7 @@ export const Authorize: FunctionComponent = () => {
                     token,
                     authenticated: true
                 })
-                navigate('/dashboard');
+                navigate('/budgets');
             }
             else {
                 setError('Token not present');

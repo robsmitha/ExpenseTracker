@@ -26,13 +26,13 @@ const AccountPreview: React.FunctionComponent<Props> = ({ item }) => {
         title={item.institution.name}
         subheader={`${new Date(item.item.lastSuccessfulUpdate).toLocaleDateString()} ${new Date(item.item.lastSuccessfulUpdate).toLocaleTimeString()}`}
       />
-      <CardActions>
+      {/* <CardActions>
         <Button
           onClick={() => navigate(`/transactions/${item.item.itemId}`)}
         >
           Transactions
         </Button>
-      </CardActions>
+      </CardActions> */}
     </Card>
   );
 }

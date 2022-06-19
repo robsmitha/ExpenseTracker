@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Transactions.Application.Extensions;
 using Transactions.Application.Interfaces;
 using Transactions.Application.Models;
 using Transactions.Domain.Entities;
@@ -16,31 +18,41 @@ namespace Transactions.Infrastructure.Services
     {
         private readonly ApplicationContext _context;
         private readonly IMapper _mapper;
-        public AccessTokenService(ApplicationContext context, IMapper mapper)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public AccessTokenService(ApplicationContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<List<AccessTokenModel>> GetAccessTokensAsync(string userId)
+        public async Task<List<AccessTokenModel>> GetAccessTokensAsync()
         {
-            var accessToken = await _context.UserAccessItems.Where(a => a.UserId == userId).ToListAsync();
+            var accessToken = await _context.UserAccessItems.Where(a => a.UserId == _httpContextAccessor.GetUserId()).ToListAsync();
             return _mapper.Map<List<AccessTokenModel>>(accessToken);
         }
 
-        public async Task<AccessTokenModel> GetAccessTokenAsync(string userId, string itemId)
+        public async Task<List<AccessTokenModel>> GetBudgetAccessTokensAsync(int budgetId)
         {
-            var accessToken = await _context.UserAccessItems.FirstOrDefaultAsync(a => a.UserId == userId && a.ItemId == itemId);
+            var budgetAccessItemIds = await _context.BudgetAccessItems.Where(a => a.BudgetId == budgetId).Select(a => a.UserAccessItemId).ToListAsync();
+            var accessToken = await _context.UserAccessItems.Where(a => budgetAccessItemIds.Contains(a.Id)).ToListAsync();
+            return _mapper.Map<List<AccessTokenModel>>(accessToken);
+        }
+
+        public async Task<AccessTokenModel> GetAccessTokenAsync(string itemId)
+        {
+            var accessToken = await _context.UserAccessItems.FirstOrDefaultAsync(a => a.UserId == _httpContextAccessor.GetUserId() && a.ItemId == itemId);
             return _mapper.Map<AccessTokenModel>(accessToken);
         }
 
-        public async Task<AccessTokenModel> SetAccessTokenAsync(string userId, string accessToken, string itemId)
+        public async Task<AccessTokenModel> SetAccessTokenAsync(string accessToken, string itemId, string institutionId)
         {
             var userAccessItem = new UserAccessItem
             {
-                UserId = userId,
+                UserId = _httpContextAccessor.GetUserId(),
                 AccessToken = accessToken,
-                ItemId = itemId
+                ItemId = itemId,
+                InstitutionId = institutionId
             };
             await _context.AddAsync(userAccessItem);
             await _context.SaveChangesAsync();

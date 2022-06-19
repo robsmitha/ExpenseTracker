@@ -14,10 +14,12 @@ namespace Transactions.Application.Commands
     {
         private string TransactionId { get; set; }
         private int CategoryId { get; set; }
-        public SetTransactionCategoryCommand(string transactionId, int categoryId)
+        private int BudgetId { get; set; }
+        public SetTransactionCategoryCommand(string transactionId, int categoryId, int budgetId)
         {
             TransactionId = transactionId;
             CategoryId = categoryId;
+            BudgetId = budgetId;
         }
         public class Handler : IRequestHandler<SetTransactionCategoryCommand, TransactionCategoryModel>
         {
@@ -28,7 +30,7 @@ namespace Transactions.Application.Commands
             }
             public async Task<TransactionCategoryModel> Handle(SetTransactionCategoryCommand request, CancellationToken cancellationToken)
             {
-                return await _categoryService.SetTransactionCategoryAsync(request.TransactionId, request.CategoryId);
+                return await _categoryService.SetTransactionCategoryAsync(request.TransactionId, request.CategoryId, request.BudgetId);
             }
         }
     }

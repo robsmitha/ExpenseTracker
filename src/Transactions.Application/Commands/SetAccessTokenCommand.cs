@@ -13,11 +13,9 @@ namespace Transactions.Application.Commands
 {
     public class SetAccessTokenCommand : IRequest<AccessTokenModel>
     {
-        public string UserId { get; set; }
         public string PublicToken { get; set; }
-        public SetAccessTokenCommand(string userId, string publicToken)
+        public SetAccessTokenCommand(string publicToken)
         {
-            UserId = userId;
             PublicToken = publicToken;
         }
 
@@ -34,12 +32,7 @@ namespace Transactions.Application.Commands
             {
                 var publicTokenExchangeResponse = await _financialService.ItemPublicTokenExchangeAsync(request.PublicToken);
                 
-                var item = await _financialService.GetItemAsync(publicTokenExchangeResponse.access_token);
-                if (item.HasError)
-                {
-                    _logger.LogError($"Item [{item.ItemId}] returned error code: {item.ErrorCode}");
-                }
-                return await _financialService.SetAccessTokenAsync(request.UserId, publicTokenExchangeResponse.access_token, item.ItemId);
+                return await _financialService.SetAccessTokenAsync(publicTokenExchangeResponse.access_token);
             }
         }
     }

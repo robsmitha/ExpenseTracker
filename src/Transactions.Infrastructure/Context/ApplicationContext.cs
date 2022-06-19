@@ -15,8 +15,11 @@ namespace Transactions.Infrastructure.Context
                : base(options)
         { }
 
-        public DbSet<UserAccessItem> UserAccessItems { get; set; }
+        public DbSet<Budget> Budgets { get; set; }
+        public DbSet<BudgetAccessItem> BudgetAccessItems { get; set; }
+        public DbSet<BudgetCategory> BudgetCategories { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<TransactionCategory> TransactionCategories { get; set; }
+        public DbSet<UserAccessItem> UserAccessItems { get; set; }
     }
 }

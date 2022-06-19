@@ -41,7 +41,7 @@ const ResponsiveAppBar: React.FunctionComponent<Props> = ({ openMenuFunc, showEx
           position="fixed" 
           sx={{ zIndex: theme.zIndex.drawer + 1 }}
         >
-          <Container maxWidth="xl">
+          <Container maxWidth={false}>
             <Toolbar disableGutters>
             {showExpandMenu && <IconButton
                 color="inherit"
@@ -55,7 +55,7 @@ const ResponsiveAppBar: React.FunctionComponent<Props> = ({ openMenuFunc, showEx
                 <MenuIcon />
               </IconButton>}
               <Button
-                    onClick={() => navigate(!authenticated ? '/' : '/dashboard')}
+                    onClick={() => navigate(!authenticated ? '/' : '/budgets')}
                     sx={{ my: 2, color: 'white', display: 'block' }}
                 >
                     Expense Tracker
@@ -92,8 +92,8 @@ const ResponsiveAppBar: React.FunctionComponent<Props> = ({ openMenuFunc, showEx
                   open={Boolean(anchorElUser)}
                   onClose={handleCloseUserMenu}
                   >
-                  <MenuItem onClick={() => navigate('dashboard')}>
-                      <Typography textAlign="center">Dashboard</Typography>
+                  <MenuItem onClick={() => navigate('budgets')}>
+                      <Typography textAlign="center">Budgets</Typography>
                   </MenuItem>
                   <MenuItem onClick={() => navigate('sign-out')}>
                       <Typography textAlign="center">Sign Out</Typography>

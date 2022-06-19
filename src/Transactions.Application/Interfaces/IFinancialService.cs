@@ -14,8 +14,8 @@ namespace Transactions.Application.Interfaces
         Task<InstitutionModel> GetInstitutionAsync(string institutionId);
         Task<List<TransactionModel>> GetTransactionsAsync(string accessToken, DateTime startDate, DateTime endDate);
         Task<string> RefreshTransactionsAsync(string accessToken);
-        Task<AccessTokenModel> SetAccessTokenAsync(string userId, string accessToken, string itemId);
-        Task<LinkTokenModel> CreateLinkTokenAsync(string userId);
+        Task<AccessTokenModel> SetAccessTokenAsync(string accessToken);
+        Task<LinkTokenModel> CreateLinkTokenAsync(string accessToken = null);
         Task<ItemPublicTokenExchangeModel> ItemPublicTokenExchangeAsync(string publicToken);
     }
 }
