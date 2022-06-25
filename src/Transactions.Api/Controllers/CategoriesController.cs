@@ -30,9 +30,9 @@ namespace Transactions.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<CategoryModel>> SaveCategory(CategoryModel model)
+        public async Task<ActionResult<CategoryModel>> SaveCategory(SaveCategoryModel model)
         {
-            return Ok(await _mediator.Send(new SaveCategoryCommand(model)));
+            return Ok(await _mediator.Send(new SaveCategoryCommand(model, model.BudgetId, model.Estimate)));
         }
     }
 }

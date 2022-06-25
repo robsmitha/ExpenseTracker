@@ -31,6 +31,17 @@ namespace Transactions.Infrastructure.Services
             return _mapper.Map<List<CategoryModel>>(categories);
         }
 
+        public async Task<CategoryModel> GetCategoryAsync(int categoryId)
+        {
+            var category = await _context.Categories.FindAsync(categoryId);
+            return _mapper.Map<CategoryModel>(category);
+        }
+
+        public async Task<CategoryModel> GetCategoryByNameAsync(string categoryName)
+        {
+            var category = await _context.Categories.FirstOrDefaultAsync(c => c.Name.ToLower() == categoryName.ToLower());
+            return _mapper.Map<CategoryModel>(category);
+        }
 
         public async Task<CategoryModel> AddCategoryAsync(CategoryModel model)
         {
@@ -51,11 +62,11 @@ namespace Transactions.Infrastructure.Services
             return _mapper.Map<CategoryModel>(category);
         }
 
-        public async Task<List<TransactionCategoryModel>> GetTransactionCategoriesAsync(List<string> transactionIds = null)
+        public async Task<List<TransactionCategoryModel>> GetTransactionCategoriesAsync(int budgetId)
         {
             var transactionCategories = await _context.TransactionCategories
                 .Include(c => c.Category)
-                .Where(c => (transactionIds == null || transactionIds.Contains(c.TransactionId)))
+                .Where(c => c.BudgetId == budgetId)
                 .ToListAsync();
             return _mapper.Map<List<TransactionCategoryModel>>(transactionCategories);
         }

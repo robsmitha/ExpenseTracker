@@ -10,13 +10,13 @@ interface Props {
 
 const TransactionList: React.FunctionComponent<Props> = ({ items, columns, selectionModel, setSelectionModel }) => {
     return (
-        <div style={{ height: 400, width: '100%' }}>
+        <div style={{ height: '80vh', width: '100%' }}>
         <DataGrid
             getRowId={(row) => row.transaction_id}
             rows={items}
             columns={columns}
-            pageSize={5}
-            rowsPerPageOptions={[5]}
+            pageSize={50}
+            rowsPerPageOptions={[]}
             checkboxSelection
             disableSelectionOnClick
             isRowSelectable={(params: GridRowParams) => !params.row.pending}

@@ -38,6 +38,15 @@ namespace Transactions.Infrastructure.Services
             var model = _mapper.Map<BudgetModel>(budget);
             return model;
         }
+
+        public async Task<List<BudgetCategoryModel>> GetBudgetCategoriesAsync(int budgetId)
+        {
+            var budgetCategories = await _context.BudgetCategories
+                .Include(i => i.Category).Where(b => b.BudgetId == budgetId).ToListAsync();
+            var model = _mapper.Map<List<BudgetCategoryModel>>(budgetCategories);
+            return model;
+        }
+
         public async Task<BudgetModel> AddBudgetAsync(BudgetModel model)
         {
             var budget = new Budget
@@ -117,6 +126,26 @@ namespace Transactions.Infrastructure.Services
 
             await _context.SaveChangesAsync();
             return _mapper.Map<BudgetModel>(budget);
+        }
+
+        public async Task<BudgetCategoryModel> UpdateBudgetCategoryEstimateAsync(int budgetId, int categoryId, decimal estimate)
+        {
+            var budgetCategory = await _context.BudgetCategories
+                .FirstOrDefaultAsync(b => b.BudgetId == budgetId && b.CategoryId == categoryId);
+            budgetCategory.Estimate = estimate;
+            await _context.SaveChangesAsync();
+            return _mapper.Map<BudgetCategoryModel>(budgetCategory);
+        }
+
+        public async Task AddBudgetCategoryAsync(int budgetId, int categoryId, decimal? estimate = null)
+        {
+            await _context.BudgetCategories.AddAsync(new BudgetCategory
+            {
+                BudgetId = budgetId,
+                CategoryId = categoryId,
+                Estimate = estimate ?? 0
+            });
+            await _context.SaveChangesAsync();
         }
     }
 }

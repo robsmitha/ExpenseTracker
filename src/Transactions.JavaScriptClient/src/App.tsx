@@ -16,8 +16,8 @@ import Home from "./routes/home";
 import SignOut from "./routes/signout";
 import Authorize from "./routes/authorize";
 import Accounts from "./routes/accounts";
-import Transactions from "./routes/transactions";
 import Budgets from "./routes/budgets";
+import Budget from "./routes/budget";
 
 
 export interface IAppProps {};
@@ -47,9 +47,9 @@ export const App: React.FunctionComponent<IAppProps> = (props) => {
             <Accounts />
           </Authenticated>
           } />
-          <Route path="/transactions/:budgetId" element={
+          <Route path="/budget/:budgetId" element={
           <Authenticated>
-            <Transactions />
+            <Budget />
           </Authenticated>
           } />
         </Route>

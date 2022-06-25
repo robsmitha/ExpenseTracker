@@ -90,22 +90,6 @@ namespace Transactions.Infrastructure.Services
                     return t;
                 }).ToList();
 
-            // check for existing transaction categories
-            var transactionIds = results.Select(t => t.transaction_id).ToList();
-            var transactionCategories = await _categoryService.GetTransactionCategoriesAsync(transactionIds);
-            var transactionIdLookup = transactionCategories.GroupBy(t => t.TransactionId).ToDictionary(g => g.Key, g => g.First());
-            results.ForEach(t =>
-            {
-                if(transactionIdLookup.TryGetValue(t.transaction_id, out var transactionCategory))
-                {
-                    t.Category = new CategoryModel
-                    {
-                        Name = transactionCategory.CategoryName,
-                        Id = transactionCategory.Id
-                    };
-                }
-            });
-
             return results;
         }
 

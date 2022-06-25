@@ -35,6 +35,12 @@ namespace Transactions.Api.Controllers
             return Ok(await _mediator.Send(new GetBudgetQuery(budgetId)));
         }
 
+        [HttpGet("{budgetId}/Transactions")]
+        public async Task<ActionResult<GetTransactionsQuery.Response>> GetBudgetTransactions(int budgetId)
+        {
+            return Ok(await _mediator.Send(new GetTransactionsQuery(budgetId)));
+        }
+
         [HttpPost]
         public async Task<ActionResult<BudgetModel>> SaveBudget(BudgetModel model)
         {
@@ -57,6 +63,12 @@ namespace Transactions.Api.Controllers
                 results.Add(result);
             }
             return Ok(results);
+        }
+
+        [HttpPost("UpdateBudgetCategoryEstimate")]
+        public async Task<ActionResult<BudgetCategoryModel>> UpdateBudgetCategoryEstimate(BudgetCategoryModel model)
+        {
+            return Ok(await _mediator.Send(new UpdateBudgetCategoryCommand(model.BudgetId, model.CategoryName, model.Estimate)));
         }
     }
 }

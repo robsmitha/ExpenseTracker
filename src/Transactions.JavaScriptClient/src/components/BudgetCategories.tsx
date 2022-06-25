@@ -6,16 +6,20 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import Button from '@mui/material/Button';
 
 interface Props {
     items: Array<any>;
     total: number;
+    caption: string;
+    onCategorySelected: (category: string, estimate: number) => void;
 }
 
-const BudgetCategories: React.FunctionComponent<Props> = ({ items, total }) => {
+const BudgetCategories: React.FunctionComponent<Props> = ({ items, total, caption, onCategorySelected }) => {
   return (
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 350 }} aria-label="simple table">
+    <TableContainer sx={{ maxWidth: 400 }} component={Paper}>
+      <Table size="small" aria-label="budget category table">
+        <caption>{caption}</caption>
         <TableHead>
           <TableRow>
             <TableCell>Category</TableCell>
@@ -34,8 +38,12 @@ const BudgetCategories: React.FunctionComponent<Props> = ({ items, total }) => {
                 {row.category}
               </TableCell>
               <TableCell align="right">{row.sum}</TableCell>
-              <TableCell align="right">0</TableCell>
-              <TableCell align="right">0</TableCell>
+              <TableCell align="right">
+                <Button disabled={row.category === "Uncategorized"} onClick={() => onCategorySelected(row.category, row.estimate)} size="small">
+                  {row.estimate}
+                </Button>
+              </TableCell>
+              <TableCell align="right">{row.sum - row.estimate}</TableCell>
             </TableRow>
           ))}
           <TableRow>

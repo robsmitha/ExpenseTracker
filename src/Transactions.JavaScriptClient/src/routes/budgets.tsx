@@ -10,7 +10,6 @@ import {
 } from '@mui/material';
 import { budgetService } from '../services/budget.service'
 import { accessItemService } from '../services/accessItem.service'
-import BudgetCategories from '../components/BudgetCategories';
 import AddBudgetDialog from '../components/AddBudgetDialog';
 
 
@@ -64,7 +63,7 @@ export const Dashboard: FunctionComponent = () => {
             </Grid>
             <Grid item xs>
                 { budgets && budgets.map((b: any) => {
-                    return <Button key={b.id} variant="text" onClick={() => navigate(`/transactions/${b.id}`)}>{b.name}</Button>
+                    return <Button key={b.id} variant="text" onClick={() => navigate(`/budget/${b.id}`)}>{b.name}</Button>
                 }) }
             </Grid>
         </Grid>

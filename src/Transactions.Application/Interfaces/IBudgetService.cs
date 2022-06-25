@@ -13,5 +13,8 @@ namespace Transactions.Application.Interfaces
         Task<BudgetModel> GetBudgetAsync(int budgetId);
         Task<BudgetModel> AddBudgetAsync(BudgetModel model);
         Task<BudgetModel> UpdateBudgetAsync(BudgetModel model);
+        Task<List<BudgetCategoryModel>> GetBudgetCategoriesAsync(int budgetId);
+        Task<BudgetCategoryModel> UpdateBudgetCategoryEstimateAsync(int budgetId, int categoryId, decimal estimate);
+        Task AddBudgetCategoryAsync(int budgetId, int categoryId, decimal? estimate = null);
     }
 }

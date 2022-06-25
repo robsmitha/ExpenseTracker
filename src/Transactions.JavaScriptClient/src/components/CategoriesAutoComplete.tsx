@@ -24,19 +24,22 @@ const CategoryAutoComplete: React.FunctionComponent<Props> = ({ cateogories, val
 
   const handleClose = () => {
     setDialogValue({
-      name: ''
+      name: '',
+      estimate: 0
     });
     toggleOpen(false);
   };
 
   const [dialogValue, setDialogValue] = React.useState({
-    name: ''
+    name: '',
+    estimate: 0
   });
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setValue({
-      name: dialogValue.name
+      name: dialogValue.name,
+      estimate: dialogValue.estimate,
     });
     handleClose();
   };
@@ -53,12 +56,14 @@ const CategoryAutoComplete: React.FunctionComponent<Props> = ({ cateogories, val
               toggleOpen(true);
               setDialogValue({
                 name: newValue,
+                estimate: 0
               });
             });
           } else if (newValue && newValue.inputValue) {
             toggleOpen(true);
             setDialogValue({
               name: newValue.inputValue,
+              estimate: 0
             });
           } else {
             setValue(newValue);
@@ -110,10 +115,24 @@ const CategoryAutoComplete: React.FunctionComponent<Props> = ({ cateogories, val
               onChange={(event) =>
                 setDialogValue({
                   name: event.target.value,
+                  estimate: dialogValue.estimate
                 })
               }
               label="name"
               type="text"
+              variant="standard"
+            />
+            <TextField
+              id="estimate"
+              value={dialogValue.estimate}
+              onChange={(event) =>
+                setDialogValue({
+                  name: dialogValue.name,
+                  estimate: Number(event.target.value)
+                })
+              }
+              label="estimate"
+              type="number"
               variant="standard"
             />
           </DialogContent>

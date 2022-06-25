@@ -15,71 +15,82 @@ namespace Transactions.Application.Queries
 {
     public class GetTransactionsQuery : IRequest<GetTransactionsQuery.Response>
     {
-        private string ItemId { get; set; }
-        private DateTime StartDate { get; set; }
-        private DateTime EndDate { get; set; }
-        public GetTransactionsQuery(string itemId, DateTime? startDate = null, DateTime? endDate = null)
+        private int BudgetId { get; set; }
+        public GetTransactionsQuery(int budgetId)
         {
-            if (startDate > endDate)
-            {
-                throw new ArgumentException($"{nameof(startDate)} value \"{startDate}\" cannot be after {nameof(endDate)} value \"{endDate}\"");
-            }
-
-            var now = DateTime.Now;
-            startDate ??= new DateTime(now.Year, now.Month, 1);
-            endDate ??= startDate.Value.AddMonths(1).AddDays(-1);
-
-
-            ItemId = itemId;
-            StartDate = startDate.Value;
-            EndDate = endDate.Value;
+            BudgetId = budgetId;
         }
 
         public class Handler : IRequestHandler<GetTransactionsQuery, Response>
         {
             private readonly IFinancialService _financialService;
+            private readonly IBudgetService _budgetService;
             private readonly IAccessTokenService _accessTokenService;
+            private readonly ICategoryService _categoryService;
 
-            public Handler(IFinancialService financialService, IAccessTokenService accessTokenService)
+            public Handler(IFinancialService financialService, IAccessTokenService accessTokenService, 
+                IBudgetService budgetService, ICategoryService categoryService)
             {
                 _financialService = financialService;
                 _accessTokenService = accessTokenService;
+                _budgetService = budgetService;
+                _categoryService = categoryService;
             }
 
             public async Task<Response> Handle(GetTransactionsQuery request, CancellationToken cancellationToken)
             {
-                var accessToken = await _accessTokenService.GetAccessTokenAsync(request.ItemId);
-                var transactions = new List<TransactionModel>();
-                try
+                var allTransactions = new List<TransactionModel>();
+                var expiredAccessItems = new List<ExpiredAccessItem>();
+                var budget = await _budgetService.GetBudgetAsync(request.BudgetId);
+                var accessTokens = await _accessTokenService.GetBudgetAccessTokensAsync(budget.Id);
+                foreach (var accessToken in accessTokens)
                 {
-                    if (accessToken == null)
+                    try
                     {
-                        throw new NotFoundException("AccessToken not found.");
+                        var transactions = await _financialService.GetTransactionsAsync(accessToken.AccessToken, budget.StartDate, budget.EndDate);
+                        allTransactions.AddRange(transactions);
                     }
-                    transactions = await _financialService.GetTransactionsAsync(accessToken.AccessToken, request.StartDate, request.EndDate);
-                }
-                catch (FinancialServiceException fex)
-                {
-                    if (string.Equals(fex.Error?.error_code, ErrorCodes.ITEM_LOGIN_REQUIRED,
-                               StringComparison.InvariantCultureIgnoreCase))
+                    catch (FinancialServiceException fex)
                     {
-                        var institution = await _financialService.GetInstitutionAsync(accessToken.InstitutionId);
-                        return new Response
+                        if (string.Equals(fex.Error?.error_code, ErrorCodes.ITEM_LOGIN_REQUIRED,
+                                   StringComparison.InvariantCultureIgnoreCase))
                         {
-                            ExpiredAccessItem = new ExpiredAccessItem(accessToken.AccessToken, fex.Error.error_message, institution)
-                        };
+                            var institution = await _financialService.GetInstitutionAsync(accessToken.InstitutionId);
+                            expiredAccessItems.Add(new ExpiredAccessItem(accessToken.AccessToken, fex.Error.error_message, institution));
+                        }
                     }
                 }
+                var transactionCategories = await _categoryService.GetTransactionCategoriesAsync(request.BudgetId);
+                var transactionCategoryData = from t in allTransactions
+                                              join c in transactionCategories on t.transaction_id equals c.TransactionId into tmpC
+                                              from c in tmpC.DefaultIfEmpty()
+                                              select new
+                                              {
+                                                  Transaction = t,
+                                                  Category = c == null
+                                                  ? null
+                                                  : new CategoryModel
+                                                  {
+                                                      Id = c.CategoryId,
+                                                      Name = c.CategoryName
+                                                  }
+                                              };
                 return new Response
                 {
-                    Transactions = transactions
+                    Transactions = transactionCategoryData.Select(d =>
+                    {
+                        var transaction = d.Transaction;
+                        transaction.Category = d.Category;
+                        return transaction;
+                    }).ToList(),
+                    ExpiredAccessItems = expiredAccessItems
                 };
             }
         }
         public class Response
         {
             public List<TransactionModel> Transactions { get; set; }
-            public ExpiredAccessItem ExpiredAccessItem { get; set; }
+            public List<ExpiredAccessItem> ExpiredAccessItems { get; set; }
         }
     }
 }

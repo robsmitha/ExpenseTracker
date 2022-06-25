@@ -3,7 +3,9 @@ export const budgetService = {
     bulkUpdateTransactionCategory,
     saveBudget,
     getBudgets,
-    getBudget
+    getBudget,
+    getTransactions,
+    updateBudgetCategoryEstimate
 };
 
 async function getBudget(budgetId: number) {
@@ -11,6 +13,13 @@ async function getBudget(budgetId: number) {
         method: 'get'
     }
     return send(`/budgets/${budgetId}`, request)
+}
+
+async function getTransactions(budgetId: number) {
+    const request = {
+        method: 'get'
+    }
+    return send(`/budgets/${budgetId}/transactions`, request)
 }
 
 async function getBudgets() {
@@ -40,4 +49,15 @@ async function saveBudget(data: any) {
         body: JSON.stringify(data)
     }
     return send(`/budgets`, request)
+}
+
+async function updateBudgetCategoryEstimate (data: any) {
+    const request = {
+        method: 'post',
+        headers: { 
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    }
+    return send(`/budgets/UpdateBudgetCategoryEstimate`, request)
 }

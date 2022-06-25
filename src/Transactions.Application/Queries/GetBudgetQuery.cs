@@ -24,11 +24,14 @@ namespace Transactions.Application.Queries
             private readonly IFinancialService _financialService;
             private readonly IAccessTokenService _accessTokenService;
             private readonly IBudgetService _budgetService;
-            public Handler(IFinancialService financialService, IAccessTokenService accessTokenService, IBudgetService budgetService)
+            private readonly ICategoryService _categoryService;
+            public Handler(IFinancialService financialService, IAccessTokenService accessTokenService,
+                IBudgetService budgetService, ICategoryService categoryService)
             {
                 _financialService = financialService;
                 _accessTokenService = accessTokenService;
                 _budgetService = budgetService;
+                _categoryService = categoryService;
             }
 
             public async Task<BudgetViewModel> Handle(GetBudgetQuery request, CancellationToken cancellationToken)
@@ -37,7 +40,7 @@ namespace Transactions.Application.Queries
                 var expiredAccessTokens = new List<ExpiredAccessItem>();
                 var budget = await _budgetService.GetBudgetAsync(request.BudgetId);
                 var accessTokens = await _accessTokenService.GetBudgetAccessTokensAsync(budget.Id);
-                foreach(var accessToken in accessTokens)
+                foreach (var accessToken in accessTokens)
                 {
                     try
                     {
@@ -55,7 +58,45 @@ namespace Transactions.Application.Queries
                     }
                 }
 
-                return new BudgetViewModel(allTransactions, budget.StartDate, budget.EndDate, expiredAccessTokens);
+                var budgetCategories = await _budgetService.GetBudgetCategoriesAsync(request.BudgetId);
+                var transactionCategories = await _categoryService.GetTransactionCategoriesAsync(request.BudgetId);
+                var transactionCategoryData = from t in allTransactions
+                        join c in transactionCategories on t.transaction_id equals c.TransactionId into tmpC
+                        from c in tmpC.DefaultIfEmpty()
+                        group t.amount by c?.CategoryName ?? "Uncategorized"
+                        into g
+                        select new
+                        {
+                            Category = g.Key,
+                            Sum = (decimal)g.Sum()
+                        };
+
+                var budgetCategoryData = new List<TransactionCategoryData>();
+                
+                var uncategorizedCategory = transactionCategoryData.FirstOrDefault(g => g.Category == "Uncategorized");
+                if(uncategorizedCategory != null)
+                {
+                    budgetCategoryData.Add(new TransactionCategoryData
+                    {
+                        Category = uncategorizedCategory.Category,
+                        Sum = uncategorizedCategory.Sum,
+                        Estimate = uncategorizedCategory.Sum
+                    });
+                }
+
+                foreach (var budgetCategory in budgetCategories)
+                {
+                    var transactionData = transactionCategoryData.FirstOrDefault(c => c.Category == budgetCategory.CategoryName);
+                    budgetCategoryData.Add(new TransactionCategoryData
+                    {
+                        Estimate = budgetCategory.Estimate,
+                        Category = budgetCategory.CategoryName,
+                        Sum = transactionData?.Sum ?? 0
+                    });
+                }
+
+                var transactionsTotal = (decimal)allTransactions.Sum(t => t.amount);
+                return new BudgetViewModel(budgetCategoryData, budget.Name, budget.StartDate, budget.EndDate, expiredAccessTokens, transactionsTotal);
             }
         }
 
