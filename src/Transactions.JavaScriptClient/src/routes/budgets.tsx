@@ -11,6 +11,7 @@ import {
 import { budgetService } from '../services/budget.service'
 import { accessItemService } from '../services/accessItem.service'
 import AddBudgetDialog from '../components/AddBudgetDialog';
+import BudgetPreview from '../components/BudgetPreview';
 
 
 export const Dashboard: FunctionComponent = () => {
@@ -61,10 +62,14 @@ export const Dashboard: FunctionComponent = () => {
                 <AddBudgetDialog open={open} setOpen={setOpen} reloadBudgets={reloadBudgets} institutions={institutions} />
               </Toolbar>
             </Grid>
-            <Grid item xs>
-                { budgets && budgets.map((b: any) => {
-                    return <Button key={b.id} variant="text" onClick={() => navigate(`/budget/${b.id}`)}>{b.name}</Button>
-                }) }
+            <Grid item xs={12}>
+                <Grid container spacing={2}>
+                    { budgets && budgets.map((b: any) => {
+                        return <Grid item md={3} key={b.id}>
+                                <BudgetPreview item={b} />
+                            </Grid>
+                    }) }
+                </Grid>
             </Grid>
         </Grid>
         

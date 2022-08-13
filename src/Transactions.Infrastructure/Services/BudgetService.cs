@@ -147,5 +147,22 @@ namespace Transactions.Infrastructure.Services
             });
             await _context.SaveChangesAsync();
         }
+
+        public async Task<BudgetExcludedTransactionModel> SetExcludedTransactionAsync(int budgetId, string transactionId)
+        {
+            var excludedTransaction = await _context.BudgetExcludedTransactions.FirstOrDefaultAsync(t => t.BudgetId == budgetId && t.TransactionId == transactionId);
+            if (excludedTransaction == null)
+            {
+                excludedTransaction = new BudgetExcludedTransaction
+                {
+                    BudgetId = budgetId,
+                    TransactionId = transactionId
+                };
+            }
+
+            await _context.BudgetExcludedTransactions.AddAsync(excludedTransaction);
+            await _context.SaveChangesAsync();
+            return _mapper.Map<BudgetExcludedTransactionModel>(excludedTransaction);
+        }
     }
 }

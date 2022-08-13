@@ -1,14 +1,72 @@
 import * as React from 'react';
-import { DataGrid, GridColDef, GridRowParams, GridSelectionModel } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRowParams, GridSelectionModel, GridValueGetterParams } from '@mui/x-data-grid';
+
+import IconButton from '@mui/material/IconButton';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 interface Props {
     items: Array<any>;
-    columns: GridColDef[];
     selectionModel: GridSelectionModel;
     setSelectionModel: (selected: string[]) => void;
+    excludeTransaction: (transaction_id: string) => void;
 }
 
-const TransactionList: React.FunctionComponent<Props> = ({ items, columns, selectionModel, setSelectionModel }) => {
+
+const TransactionList: React.FunctionComponent<Props> = ({ items, selectionModel, setSelectionModel, excludeTransaction }) => {
+
+  
+  const renderExcludeButton = (params: any) => {
+    return (
+        <IconButton aria-label="delete"
+            onClick={() => {
+              excludeTransaction(params.row.transaction_id)
+            }}>
+            <DeleteIcon />
+        </IconButton>
+    )
+  }
+
+  const columns: GridColDef[] = [
+    {
+      field: 'date',
+      headerName: 'Date',
+      description: 'This date the transaction occurred on.',
+      valueGetter: (params: GridValueGetterParams) =>
+          params.row.authorized_date || params.row.date,
+    },
+    {
+      field: 'name',
+      headerName: 'Transaction',
+      flex: 1,
+    },
+    {
+      field: 'amount',
+      headerName: 'Amount',
+      valueGetter: (params: GridValueGetterParams) =>
+          `$${params.row.amount.toFixed(2)}`
+    },
+    {
+      field: 'category',
+      headerName: 'Category',
+      flex: 1,
+      valueGetter: (params: GridValueGetterParams) =>
+          params.row.category?.name,
+    },
+    {
+      field: 'account',
+      headerName: 'Account',
+      flex: 1,
+      valueGetter: (params: GridValueGetterParams) =>
+          params.row.account.name,
+    },
+    {
+        field: 'transaction_id',
+        headerName: '',
+        renderCell: renderExcludeButton
+    }
+  ];
+
+
     return (
         <div style={{ height: '80vh', width: '100%' }}>
         <DataGrid
@@ -27,7 +85,7 @@ const TransactionList: React.FunctionComponent<Props> = ({ items, columns, selec
               );
               setSelectionModel(selectedRowData.map(m => m.transaction_id));
             }}
-            selectionModel={selectionModel} 
+            selectionModel={selectionModel}
           />
         </div>
     )

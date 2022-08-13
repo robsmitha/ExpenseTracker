@@ -7,13 +7,13 @@ import CardActions from '@mui/material/CardActions';
 import Avatar from '@mui/material/Avatar';
 import { red } from '@mui/material/colors';
 import Button from '@mui/material/Button';
+import PreviewMenu from './PreviewMenu';
 
 interface Props {
   item: any
 }
 
 const AccountPreview: React.FunctionComponent<Props> = ({ item }) => {
-  const navigate = useNavigate();
 
   return (
     <Card sx={{ maxWidth: 345 }}>
@@ -25,14 +25,11 @@ const AccountPreview: React.FunctionComponent<Props> = ({ item }) => {
         }
         title={item.institution.name}
         subheader={`${new Date(item.item.lastSuccessfulUpdate).toLocaleDateString()} ${new Date(item.item.lastSuccessfulUpdate).toLocaleTimeString()}`}
+        action={<PreviewMenu items={[
+          { text: 'Refresh', click: () => { console.log('Not Implemented') } },
+          { text: 'Delete', click: () => { console.log('Not Implemented') } },
+        ]} />}
       />
-      {/* <CardActions>
-        <Button
-          onClick={() => navigate(`/transactions/${item.item.itemId}`)}
-        >
-          Transactions
-        </Button>
-      </CardActions> */}
     </Card>
   );
 }

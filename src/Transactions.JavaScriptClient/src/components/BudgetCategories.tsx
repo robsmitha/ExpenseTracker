@@ -14,10 +14,9 @@ interface Props {
     caption: string;
     onCategorySelected: (category: string, estimate: number) => void;
 }
-
 const BudgetCategories: React.FunctionComponent<Props> = ({ items, total, caption, onCategorySelected }) => {
   return (
-    <TableContainer sx={{ maxWidth: 400 }} component={Paper}>
+    <TableContainer component={Paper} sx={{overflow: 'hidden' }}>
       <Table size="small" aria-label="budget category table">
         <caption>{caption}</caption>
         <TableHead>
@@ -46,6 +45,7 @@ const BudgetCategories: React.FunctionComponent<Props> = ({ items, total, captio
               <TableCell align="right">{row.sum - row.estimate}</TableCell>
             </TableRow>
           ))}
+        </TableBody>
           <TableRow>
             <TableCell component="th" scope="row">
               Total
@@ -54,7 +54,6 @@ const BudgetCategories: React.FunctionComponent<Props> = ({ items, total, captio
             <TableCell align="right">0</TableCell>
             <TableCell align="right">0</TableCell>
           </TableRow>
-        </TableBody>
       </Table>
     </TableContainer>
   );

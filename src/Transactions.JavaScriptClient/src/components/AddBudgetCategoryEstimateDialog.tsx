@@ -21,7 +21,7 @@ interface Props {
 
 const AddBudgetCategoryEstimateDialog : React.FunctionComponent<Props> = ({ open, setOpen, category, budgetId, estimate, setEstimate, onCategorySaved }) => {
   const handleSave = async () => {
-    var result = await budgetService.updateBudgetCategoryEstimate({
+    await budgetService.updateBudgetCategoryEstimate({
       estimate,
       CategoryName: category,
       budgetId

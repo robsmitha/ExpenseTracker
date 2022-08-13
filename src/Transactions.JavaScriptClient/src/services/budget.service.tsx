@@ -5,7 +5,8 @@ export const budgetService = {
     getBudgets,
     getBudget,
     getTransactions,
-    updateBudgetCategoryEstimate
+    updateBudgetCategoryEstimate,
+    setExcludedTransaction
 };
 
 async function getBudget(budgetId: number) {
@@ -60,4 +61,15 @@ async function updateBudgetCategoryEstimate (data: any) {
         body: JSON.stringify(data)
     }
     return send(`/budgets/UpdateBudgetCategoryEstimate`, request)
+}
+
+async function setExcludedTransaction (data: any) {
+    const request = {
+        method: 'post',
+        headers: { 
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    }
+    return send(`/budgets/SetExcludedTransaction`, request)
 }

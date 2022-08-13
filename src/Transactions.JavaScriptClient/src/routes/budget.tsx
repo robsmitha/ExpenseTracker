@@ -8,8 +8,12 @@ import {
     Button,
     AlertTitle,
     Skeleton,
-    Toolbar
+    IconButton
 } from '@mui/material';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Box from '@mui/material/Box';
+
 import { budgetService } from '../services/budget.service'
 import BudgetCategories from '../components/BudgetCategories';
 import AddBudgetCategoryEstimateDialog from '../components/AddBudgetCategoryEstimateDialog';
@@ -21,41 +25,38 @@ import TransactionList from './../components/TransactionList'
 import CategoryAutoComplete from '../components/CategoriesAutocomplete'
 
 
-
-const columns: GridColDef[] = [
-    {
-      field: 'date',
-      headerName: 'Date',
-      description: 'This date the transaction occurred on.',
-      valueGetter: (params: GridValueGetterParams) =>
-          params.row.authorized_date || params.row.date,
-    },
-    {
-      field: 'name',
-      headerName: 'Transaction',
-      flex: 1,
-    },
-    {
-      field: 'amount',
-      headerName: 'Amount',
-      valueGetter: (params: GridValueGetterParams) =>
-          `$${params.row.amount.toFixed(2)}`
-    },
-    {
-      field: 'category',
-      headerName: 'Category',
-      flex: 1,
-      valueGetter: (params: GridValueGetterParams) =>
-          params.row.category?.name,
-    },
-    {
-      field: 'account',
-      headerName: 'Account',
-      flex: 1,
-      valueGetter: (params: GridValueGetterParams) =>
-          params.row.account.name,
-    }
-  ];
+interface TabPanelProps {
+    children?: React.ReactNode;
+    index: number;
+    value: number;
+  }
+  
+  function TabPanel(props: TabPanelProps) {
+    const { children, value, index, ...other } = props;
+  
+    return (
+      <div
+        role="tabpanel"
+        hidden={value !== index}
+        id={`simple-tabpanel-${index}`}
+        aria-labelledby={`simple-tab-${index}`}
+        {...other}
+      >
+        {value === index && (
+          <Box>
+            <Typography>{children}</Typography>
+          </Box>
+        )}
+      </div>
+    );
+  }
+  
+  function a11yProps(index: number) {
+    return {
+      id: `simple-tab-${index}`,
+      'aria-controls': `simple-tabpanel-${index}`,
+    };
+  }
 
 export const Dashboard: FunctionComponent = () => {
     const navigate = useNavigate();
@@ -72,6 +73,8 @@ export const Dashboard: FunctionComponent = () => {
     const [category, setCategory] = useState<any | null>(null);
     const [selectionModel, setSelectionModel] = useState<GridSelectionModel>([]);
     
+    const [tabIndex, setTabIndex] = useState(0);
+
     useEffect(() => {
         getBudget();
         getCategories();
@@ -148,60 +151,75 @@ export const Dashboard: FunctionComponent = () => {
         setOpen(true)
     }
 
+    const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+        setTabIndex(newValue);
+    };
+
+    async function setExcludedTransaction(transactionId: string){
+        await budgetService.setExcludedTransaction({
+            transactionId,
+            budgetId
+        })
+    }
+
     return (
         <Grid container spacing={2}>
-            <Grid item xs={12}>
-                <Toolbar>
-                {budget 
-                ? <Typography variant="h3" component="div" sx={{ flexGrow: 1 }}>
-                    {budget.budgetName}
-                </Typography>
-                : <Skeleton /> }
-                </Toolbar>
-            </Grid>
-            <Grid item xs={9}>
-            {!transactions 
-                ? <Skeleton /> 
-                : <Grid container spacing={2}>
-                  <Grid item xs={12}>
-                    <CategoryAutoComplete 
-                      label="Select Category" 
-                      value={category} 
-                      setValue={onSetCategory} 
-                      cateogories={categories} 
-                      disabled={selectionModel.length === 0}
-                      errorText={errorText}
-                    />
-                  </Grid>
-                    <Grid item xs={12}>
-                      <TransactionList 
-                        items={transactions} 
-                        columns={columns} 
-                        selectionModel={selectionModel} 
-                        setSelectionModel={setSelectionModel} 
-                      />
-                    </Grid>
-                  </Grid>}
-            </Grid>
-            <Grid item xs={3}>
-
-                {budget && <BudgetCategories 
-                items={budget.budgetCategoryData}
-                total={budget.transactionsTotal} 
-                onCategorySelected={onCategorySelected}
-                caption={budget.dateRange} />}
-
-                <AddBudgetCategoryEstimateDialog 
-                    open={open} 
-                    setOpen={setOpen} 
-                    onCategorySaved={onCategorySaved}
-                    category={selectedCategory} 
-                    estimate={selectedCategoryEstimate}
-                    setEstimate={setSelectedCategoryEstimate}
-                    budgetId={Number(budgetId)} />
-            </Grid>
+            {!budget 
+                ? <Grid item xs={12}>
+                    <Skeleton />
+                </Grid>
+                :  <Grid item xs={12}>
+                <Box sx={{ width: '100%' }}>
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider', pb: 1 }}>
+                        <Tabs value={tabIndex} onChange={handleTabChange} aria-label="basic tabs example">
+                            <Tab label={budget.budgetName} {...a11yProps(0)} />
+                            <Tab label="Transactions" {...a11yProps(1)} />
+                            <Tab label="Excluded" {...a11yProps(3)} />
+                        </Tabs>
+                    </Box>
+                    <TabPanel value={tabIndex} index={0}>
+                        {budget && <BudgetCategories 
+                            items={budget.budgetCategoryData}
+                            total={budget.transactionsTotal} 
+                            onCategorySelected={onCategorySelected}
+                            caption={budget.dateRange} />}
+                        
+                        <AddBudgetCategoryEstimateDialog 
+                            open={open} 
+                            setOpen={setOpen} 
+                            onCategorySaved={onCategorySaved}
+                            category={selectedCategory} 
+                            estimate={selectedCategoryEstimate}
+                            setEstimate={setSelectedCategoryEstimate}
+                            budgetId={Number(budgetId)} />
+                    </TabPanel>
+                    <TabPanel value={tabIndex} index={1}>
+                        {!transactions 
+                        ? <Skeleton /> 
+                        : <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                <CategoryAutoComplete 
+                                    label="Select Category" 
+                                    value={category} 
+                                    setValue={onSetCategory} 
+                                    cateogories={categories} 
+                                    disabled={selectionModel.length === 0}
+                                    errorText={errorText}
+                                    />
+                            </Grid>
+                                <Grid item xs={12}>
+                                    <TransactionList 
+                                        items={transactions}
+                                        selectionModel={selectionModel} 
+                                        setSelectionModel={setSelectionModel} 
+                                        excludeTransaction={setExcludedTransaction}
+                                    />
+                                </Grid>
+                            </Grid>}
+                    </TabPanel>
+                </Box>
+            </Grid>}
         </Grid>
-        
     )
   };
 
