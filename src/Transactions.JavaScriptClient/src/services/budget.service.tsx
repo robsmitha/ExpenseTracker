@@ -6,7 +6,8 @@ export const budgetService = {
     getBudget,
     getTransactions,
     updateBudgetCategoryEstimate,
-    setExcludedTransaction
+    setExcludedTransaction,
+    setRestoredTransaction
 };
 
 async function getBudget(budgetId: number) {
@@ -72,4 +73,15 @@ async function setExcludedTransaction (data: any) {
         body: JSON.stringify(data)
     }
     return send(`/budgets/SetExcludedTransaction`, request)
+}
+
+async function setRestoredTransaction (data: any) {
+    const request = {
+        method: 'post',
+        headers: { 
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    }
+    return send(`/budgets/RestoreExcludedTransaction`, request)
 }

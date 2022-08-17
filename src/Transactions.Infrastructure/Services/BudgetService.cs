@@ -160,9 +160,28 @@ namespace Transactions.Infrastructure.Services
                 };
             }
 
-            await _context.BudgetExcludedTransactions.AddAsync(excludedTransaction);
+            await _context.AddAsync(excludedTransaction);
             await _context.SaveChangesAsync();
             return _mapper.Map<BudgetExcludedTransactionModel>(excludedTransaction);
+        }
+
+        public async Task<bool> RestoreExcludedTransactionAsync(int budgetId, string transactionId)
+        {
+            var excludedTransaction = await _context.BudgetExcludedTransactions.FirstOrDefaultAsync(t => t.BudgetId == budgetId && t.TransactionId == transactionId);
+            if (excludedTransaction == null)
+            {
+                return false;
+            }
+
+            _context.Remove(excludedTransaction);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<List<BudgetExcludedTransactionModel>> GetExcludedTransactionsAsync(int budgetId)
+        {
+            var excludedTransactions = await _context.BudgetExcludedTransactions.Where(e => e.BudgetId == budgetId).ToListAsync();
+            return _mapper.Map<List<BudgetExcludedTransactionModel>>(excludedTransactions);
         }
     }
 }

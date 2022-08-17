@@ -17,5 +17,7 @@ namespace Transactions.Application.Interfaces
         Task<BudgetCategoryModel> UpdateBudgetCategoryEstimateAsync(int budgetId, int categoryId, decimal estimate);
         Task AddBudgetCategoryAsync(int budgetId, int categoryId, decimal? estimate = null);
         Task<BudgetExcludedTransactionModel> SetExcludedTransactionAsync(int budgetId, string transactionId);
+        Task<bool> RestoreExcludedTransactionAsync(int budgetId, string transactionId);
+        Task<List<BudgetExcludedTransactionModel>> GetExcludedTransactionsAsync(int budgetId);
     }
 }

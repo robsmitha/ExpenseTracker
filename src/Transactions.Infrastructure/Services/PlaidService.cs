@@ -79,7 +79,7 @@ namespace Transactions.Infrastructure.Services
             // join accounts and transactions
             var accounts = _mapper.Map<List<AccountModel>>(response.accounts);
             var transactions = _mapper.Map<List<TransactionModel>>(response.transactions);
-            
+         
             var results = transactions.Join(
                 accounts,
                 t => t.account_id,

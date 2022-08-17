@@ -103,12 +103,10 @@ const AddBudgetDialog : React.FunctionComponent<Props> = ({ open, setOpen, reloa
         setCheckedCategories(categories)
     }
     async function onSetCheckedCategories(value: any) {
-        console.log("onSetCheckedCategories", value)
         setCheckedCategories(value)
     }
 
     async function onSetCheckedInstitutions(value: any) {
-        console.log("onSetCheckedInstitutions", value)
         setCheckedInstitutions(value)
     }
     

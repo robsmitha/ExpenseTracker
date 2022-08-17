@@ -36,15 +36,30 @@ namespace Transactions.Application.Queries
 
             public async Task<BudgetViewModel> Handle(GetBudgetQuery request, CancellationToken cancellationToken)
             {
-                var allTransactions = new List<TransactionModel>();
-                var expiredAccessTokens = new List<ExpiredAccessItem>();
                 var budget = await _budgetService.GetBudgetAsync(request.BudgetId);
                 var accessTokens = await _accessTokenService.GetBudgetAccessTokensAsync(budget.Id);
+
+                var expiredAccessTokens = new List<ExpiredAccessItem>();
+                var budgetAccessItems = new List<UserAccessItemModel>();
+                var allTransactions = new List<TransactionModel>();
                 foreach (var accessToken in accessTokens)
                 {
+                    var institution = await _financialService.GetInstitutionAsync(accessToken.InstitutionId);
                     try
                     {
+                        var accounts = await _financialService.GetAccountsAsync(accessToken.AccessToken);
+                        var item = await _financialService.GetItemAsync(accessToken.AccessToken);
+                        
+                        budgetAccessItems.Add(new UserAccessItemModel
+                        {
+                            Accounts = accounts,
+                            Institution = institution,
+                            Item = item,
+                            UserAccessItemId = accessToken.Id
+                        });
+
                         var transactions = await _financialService.GetTransactionsAsync(accessToken.AccessToken, budget.StartDate, budget.EndDate);
+                        
                         allTransactions.AddRange(transactions);
                     }
                     catch (FinancialServiceException fex)
@@ -52,51 +67,18 @@ namespace Transactions.Application.Queries
                         if (string.Equals(fex.Error?.error_code, ErrorCodes.ITEM_LOGIN_REQUIRED,
                                    StringComparison.InvariantCultureIgnoreCase))
                         {
-                            var institution = await _financialService.GetInstitutionAsync(accessToken.InstitutionId);
                             expiredAccessTokens.Add(new ExpiredAccessItem(accessToken.AccessToken, fex.Error.error_message, institution));
                         }
                     }
                 }
 
+                var excludedTransactions = await _budgetService.GetExcludedTransactionsAsync(budget.Id);
                 var budgetCategories = await _budgetService.GetBudgetCategoriesAsync(request.BudgetId);
                 var transactionCategories = await _categoryService.GetTransactionCategoriesAsync(request.BudgetId);
-                var transactionCategoryData = from t in allTransactions
-                        join c in transactionCategories on t.transaction_id equals c.TransactionId into tmpC
-                        from c in tmpC.DefaultIfEmpty()
-                        group t.amount by c?.CategoryName ?? "Uncategorized"
-                        into g
-                        select new
-                        {
-                            Category = g.Key,
-                            Sum = (decimal)g.Sum()
-                        };
 
-                var budgetCategoryData = new List<TransactionCategoryData>();
-                
-                var uncategorizedCategory = transactionCategoryData.FirstOrDefault(g => g.Category == "Uncategorized");
-                if(uncategorizedCategory != null)
-                {
-                    budgetCategoryData.Add(new TransactionCategoryData
-                    {
-                        Category = uncategorizedCategory.Category,
-                        Sum = uncategorizedCategory.Sum,
-                        Estimate = uncategorizedCategory.Sum
-                    });
-                }
-
-                foreach (var budgetCategory in budgetCategories)
-                {
-                    var transactionData = transactionCategoryData.FirstOrDefault(c => c.Category == budgetCategory.CategoryName);
-                    budgetCategoryData.Add(new TransactionCategoryData
-                    {
-                        Estimate = budgetCategory.Estimate,
-                        Category = budgetCategory.CategoryName,
-                        Sum = transactionData?.Sum ?? 0
-                    });
-                }
-
-                var transactionsTotal = (decimal)allTransactions.Sum(t => t.amount);
-                return new BudgetViewModel(budgetCategoryData, budget.Name, budget.StartDate, budget.EndDate, expiredAccessTokens, transactionsTotal);
+                return new BudgetViewModel(budget.Name, budget.StartDate, budget.EndDate, 
+                    budgetCategories, transactionCategories, allTransactions, budgetAccessItems, 
+                    expiredAccessTokens, excludedTransactions);
             }
         }
 

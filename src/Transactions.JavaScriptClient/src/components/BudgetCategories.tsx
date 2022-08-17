@@ -42,10 +42,9 @@ const BudgetCategories: React.FunctionComponent<Props> = ({ items, total, captio
                   {row.estimate}
                 </Button>
               </TableCell>
-              <TableCell align="right">{row.sum - row.estimate}</TableCell>
+              <TableCell align="right">{row.estimate - row.sum}</TableCell>
             </TableRow>
           ))}
-        </TableBody>
           <TableRow>
             <TableCell component="th" scope="row">
               Total
@@ -54,6 +53,7 @@ const BudgetCategories: React.FunctionComponent<Props> = ({ items, total, captio
             <TableCell align="right">0</TableCell>
             <TableCell align="right">0</TableCell>
           </TableRow>
+        </TableBody>
       </Table>
     </TableContainer>
   );

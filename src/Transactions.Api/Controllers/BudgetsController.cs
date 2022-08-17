@@ -53,12 +53,6 @@ namespace Transactions.Api.Controllers
             return Ok(await _mediator.Send(new SetTransactionCategoryCommand(model.TransactionId, model.CategoryId, model.BudgetId)));
         }
 
-        [HttpPost("SetExcludedTransaction")]
-        public async Task<ActionResult<BudgetExcludedTransactionModel>> SetExcludedTransaction(BudgetExcludedTransactionModel model)
-        {
-            return Ok(await _mediator.Send(new SetExcludedTransactionCommand(model.TransactionId, model.BudgetId)));
-        }
-
         [HttpPost("BulkUpdateTransactionCategory")]
         public async Task<ActionResult<List<TransactionCategoryModel>>> BulkUpdateTransactionCategory(List<TransactionCategoryModel> model)
         {
@@ -75,6 +69,18 @@ namespace Transactions.Api.Controllers
         public async Task<ActionResult<BudgetCategoryModel>> UpdateBudgetCategoryEstimate(BudgetCategoryModel model)
         {
             return Ok(await _mediator.Send(new UpdateBudgetCategoryCommand(model.BudgetId, model.CategoryName, model.Estimate)));
+        }
+
+        [HttpPost("SetExcludedTransaction")]
+        public async Task<ActionResult<BudgetExcludedTransactionModel>> SetExcludedTransaction(BudgetExcludedTransactionModel model)
+        {
+            return Ok(await _mediator.Send(new SetExcludedTransactionCommand(model.TransactionId, model.BudgetId)));
+        }
+
+        [HttpPost("RestoreExcludedTransaction")]
+        public async Task<ActionResult<bool>> RestoreExcludedTransaction(BudgetExcludedTransactionModel model)
+        {
+            return Ok(await _mediator.Send(new RestoreExcludedTransactionCommand(model.TransactionId, model.BudgetId)));
         }
     }
 }

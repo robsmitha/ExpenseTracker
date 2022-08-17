@@ -13,7 +13,7 @@ interface Props {
 
 
 const TransactionList: React.FunctionComponent<Props> = ({ items, selectionModel, setSelectionModel, excludeTransaction }) => {
-
+  const [pageSize, setPageSize] = React.useState<number>(5);
   
   const renderExcludeButton = (params: any) => {
     return (
@@ -73,8 +73,10 @@ const TransactionList: React.FunctionComponent<Props> = ({ items, selectionModel
             getRowId={(row) => row.transaction_id}
             rows={items}
             columns={columns}
-            pageSize={50}
-            rowsPerPageOptions={[]}
+            pageSize={pageSize}
+            onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
+            rowsPerPageOptions={[5, 10, 20]}
+            pagination
             checkboxSelection
             disableSelectionOnClick
             isRowSelectable={(params: GridRowParams) => !params.row.pending}
@@ -86,6 +88,7 @@ const TransactionList: React.FunctionComponent<Props> = ({ items, selectionModel
               setSelectionModel(selectedRowData.map(m => m.transaction_id));
             }}
             selectionModel={selectionModel}
+            
           />
         </div>
     )

@@ -18,11 +18,13 @@ import { budgetService } from '../services/budget.service'
 import BudgetCategories from '../components/BudgetCategories';
 import AddBudgetCategoryEstimateDialog from '../components/AddBudgetCategoryEstimateDialog';
 
-import { DataGrid, GridColDef, GridValueGetterParams, GridSelectionModel } from '@mui/x-data-grid';
+import { GridSelectionModel } from '@mui/x-data-grid';
 
 import { categoryService } from './../services/category.service'
 import TransactionList from './../components/TransactionList'
+import ExcludedTransactionList from './../components/ExcludedTransactionList'
 import CategoryAutoComplete from '../components/CategoriesAutocomplete'
+import AccountList from './../components/AccountList'
 
 
 interface TabPanelProps {
@@ -44,7 +46,7 @@ interface TabPanelProps {
       >
         {value === index && (
           <Box>
-            <Typography>{children}</Typography>
+            <Typography component={'span'}>{children}</Typography>
           </Box>
         )}
       </div>
@@ -58,7 +60,7 @@ interface TabPanelProps {
     };
   }
 
-export const Dashboard: FunctionComponent = () => {
+export const Budget: FunctionComponent = () => {
     const navigate = useNavigate();
     const { budgetId } = useParams();
     const [budget, setBudget] = useState<any>();
@@ -66,7 +68,6 @@ export const Dashboard: FunctionComponent = () => {
     const [selectedCategory, setSelectedCategory] = useState<string>('');
     const [selectedCategoryEstimate, setSelectedCategoryEstimate] = useState<number>(0);
 
-    const [transactions, setTransactions] = useState<Array<any>>([]);
     const [categories, setCategories] = useState<Array<any>>([]);
 
     const [errorText, setErrorText] = useState<string | null>(null);
@@ -78,7 +79,6 @@ export const Dashboard: FunctionComponent = () => {
     useEffect(() => {
         getBudget();
         getCategories();
-        getTransactions();
     }, []);
 
     async function getBudget() {
@@ -96,11 +96,6 @@ export const Dashboard: FunctionComponent = () => {
         }))
     }
 
-    async function getTransactions() {
-        const response = await budgetService.getTransactions(Number(budgetId));
-        setTransactions(response.transactions)
-    }
-
     async function setTransactionsCategory(category: any){
         const data = selectionModel?.map(transactionId => {
             return {
@@ -112,7 +107,6 @@ export const Dashboard: FunctionComponent = () => {
         const response = await budgetService.bulkUpdateTransactionCategory(data);
         if(response){
             // fetch updated transactions
-            await getTransactions()
             await getBudget()
 
             // reset selections
@@ -160,6 +154,15 @@ export const Dashboard: FunctionComponent = () => {
             transactionId,
             budgetId
         })
+        await getBudget()
+    }
+
+    async function setRestoredTransaction(transactionId: string){
+        await budgetService.setRestoredTransaction({
+            transactionId,
+            budgetId
+        })
+        await getBudget()
     }
 
     return (
@@ -170,11 +173,12 @@ export const Dashboard: FunctionComponent = () => {
                 </Grid>
                 :  <Grid item xs={12}>
                 <Box sx={{ width: '100%' }}>
-                    <Box sx={{ borderBottom: 1, borderColor: 'divider', pb: 1 }}>
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider', pb: 1, mb: 2 }}>
                         <Tabs value={tabIndex} onChange={handleTabChange} aria-label="basic tabs example">
                             <Tab label={budget.budgetName} {...a11yProps(0)} />
                             <Tab label="Transactions" {...a11yProps(1)} />
-                            <Tab label="Excluded" {...a11yProps(3)} />
+                            <Tab label="Excluded" {...a11yProps(2)} />
+                            <Tab label="Accounts" {...a11yProps(3)} />
                         </Tabs>
                     </Box>
                     <TabPanel value={tabIndex} index={0}>
@@ -194,28 +198,29 @@ export const Dashboard: FunctionComponent = () => {
                             budgetId={Number(budgetId)} />
                     </TabPanel>
                     <TabPanel value={tabIndex} index={1}>
-                        {!transactions 
-                        ? <Skeleton /> 
-                        : <Grid container spacing={2}>
-                            <Grid item xs={12}>
-                                <CategoryAutoComplete 
-                                    label="Select Category" 
-                                    value={category} 
-                                    setValue={onSetCategory} 
-                                    cateogories={categories} 
-                                    disabled={selectionModel.length === 0}
-                                    errorText={errorText}
-                                    />
-                            </Grid>
-                                <Grid item xs={12}>
-                                    <TransactionList 
-                                        items={transactions}
-                                        selectionModel={selectionModel} 
-                                        setSelectionModel={setSelectionModel} 
-                                        excludeTransaction={setExcludedTransaction}
-                                    />
-                                </Grid>
-                            </Grid>}
+                        {selectionModel.length > 0 && <CategoryAutoComplete 
+                            label="Select Category" 
+                            value={category} 
+                            setValue={onSetCategory} 
+                            cateogories={categories} 
+                            disabled={selectionModel.length === 0}
+                            errorText={errorText}
+                            />}
+                        <TransactionList 
+                            items={budget.transactions}
+                            selectionModel={selectionModel} 
+                            setSelectionModel={setSelectionModel} 
+                            excludeTransaction={setExcludedTransaction}
+                        />
+                    </TabPanel>
+                    <TabPanel value={tabIndex} index={2}>
+                        <ExcludedTransactionList 
+                            items={budget.excludedTransactions}
+                            restoreTransaction={setRestoredTransaction}
+                        />
+                    </TabPanel>
+                    <TabPanel value={tabIndex} index={3}>
+                        <AccountList items={budget.budgetAccessItems} />
                     </TabPanel>
                 </Box>
             </Grid>}
@@ -223,4 +228,4 @@ export const Dashboard: FunctionComponent = () => {
     )
   };
 
-  export default Dashboard;
+  export default Budget;
