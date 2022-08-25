@@ -15,18 +15,18 @@ namespace Transactions.Application.Models
 
     public class BudgetViewModel
     {
+        public string BudgetName { get; set; }
+        private DateTime StartDate { get; set; }
+        private DateTime EndDate { get; set; }
         public List<TransactionCategoryData> BudgetCategoryData { get; set; }
         public List<TransactionModel> Transactions { get; set; }
         public List<TransactionModel> ExcludedTransactions { get; set; }
         public List<UserAccessItemModel> BudgetAccessItems { get; set; }
-        public string BudgetName { get; set; }
-        private DateTime StartDate { get; set; }
-        private DateTime EndDate { get; set; }
         public List<ExpiredAccessItem> ExpiredAccessItems { get; set; }
 
         public bool HasExpiredAccessItems => ExpiredAccessItems?.Any() == true;
         public string ExpiredMessage => ExpiredAccessItems?.FirstOrDefault()?.Message;
-        public decimal TransactionsTotal { get; set; }
+        public decimal TransactionsTotal => (decimal)(Transactions?.Sum(t => t.amount) ?? 0);
 
         public BudgetViewModel(string name, DateTime startDate, DateTime endDate,
             List<BudgetCategoryModel> budgetCategories,
@@ -42,52 +42,52 @@ namespace Transactions.Application.Models
             BudgetAccessItems = budgetAccessItems;
             ExpiredAccessItems = expiredAccessItems;
 
-            var excludedTransactionIds = budgetExcludedTransactions.Select(e => e.TransactionId).ToHashSet();
-            var excludedTransactions = allTransactions.Where(t => excludedTransactionIds.Contains(t.transaction_id)).ToList();
-            var includedTransactions = allTransactions.Where(t => !excludedTransactionIds.Contains(t.transaction_id)).ToList();
+            var excludedTransactionIds = budgetExcludedTransactions.Select(e => e.TransactionId).ToHashSet(); 
+            
+            Transactions = (from t in allTransactions
+                            join c in transactionCategories on t.transaction_id equals c.TransactionId into tmpC
+                            from c in tmpC.DefaultIfEmpty(new TransactionCategoryModel
+                            {
+                                CategoryId = -1,
+                                CategoryName = "Uncategorized"
+                            })
+                            where !excludedTransactionIds.Contains(t.transaction_id)
+                            select TransactionWithCategory(t, c)).ToList();
 
-            Transactions = includedTransactions;
-            ExcludedTransactions = excludedTransactions;
-            TransactionsTotal = (decimal)includedTransactions.Sum(t => t.amount);
+            ExcludedTransactions = allTransactions.Where(t => excludedTransactionIds.Contains(t.transaction_id)).ToList();
 
-            var transactionCategoryData = from t in includedTransactions
-                                          join c in transactionCategories on t.transaction_id equals c.TransactionId into tmpC
-                                          from c in tmpC.DefaultIfEmpty()
-                                          group t.amount by c?.CategoryName ?? "Uncategorized"
-                    into g
-                                          select new
-                                          {
-                                              Category = g.Key,
-                                              Sum = (decimal)g.Sum()
-                                          };
-
-            var budgetCategoryData = new List<TransactionCategoryData>();
-
-            var uncategorizedCategory = transactionCategoryData.FirstOrDefault(g => g.Category == "Uncategorized");
-            if (uncategorizedCategory != null)
+            budgetCategories.Insert(0, new BudgetCategoryModel
             {
-                budgetCategoryData.Add(new TransactionCategoryData
-                {
-                    Category = uncategorizedCategory.Category,
-                    Sum = uncategorizedCategory.Sum,
-                    Estimate = uncategorizedCategory.Sum
-                });
-            }
+                CategoryId = -1,
+                CategoryName = "Uncategorized",
+                Estimate = (decimal)Transactions.Where(t => t.Category.Id == -1).Sum(t => t.amount)
+            });
 
-            foreach (var budgetCategory in budgetCategories)
-            {
-                var transactionData = transactionCategoryData.FirstOrDefault(c => c.Category == budgetCategory.CategoryName);
-                budgetCategoryData.Add(new TransactionCategoryData
-                {
-                    Estimate = budgetCategory.Estimate,
-                    Category = budgetCategory.CategoryName,
-                    Sum = transactionData?.Sum ?? 0
-                });
-            }
-
-            BudgetCategoryData = budgetCategoryData;
+            BudgetCategoryData = (from c in budgetCategories
+                                  join t in Transactions on c.CategoryId equals t.Category.Id into tmpT
+                                  from t in tmpT.DefaultIfEmpty(new TransactionModel
+                                  {
+                                      amount = 0
+                                  })
+                                  group t.amount by new { c.CategoryName, c.Estimate } into g
+                                  select new TransactionCategoryData
+                                  {
+                                      Estimate = g.Key.Estimate,
+                                      Category = g.Key.CategoryName,
+                                      Sum = (decimal)g.Sum()
+                                  }).ToList();
         }
 
         public string DateRange => $"{StartDate:MMMM} {StartDate:MM/dd/yyyy} - {EndDate:MM/dd/yyyy}";
+
+        static TransactionModel TransactionWithCategory(TransactionModel t, TransactionCategoryModel c)
+        {
+            t.Category = new CategoryModel
+            {
+                Id = c.CategoryId,
+                Name = c.CategoryName
+            };
+            return t;
+        }
     }
 }

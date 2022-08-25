@@ -1,12 +1,6 @@
 import * as React from 'react';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-import Button from '@mui/material/Button';
+import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
+import Chip from '@mui/material/Chip';
 
 interface Props {
     items: Array<any>;
@@ -14,48 +8,52 @@ interface Props {
     caption: string;
     onCategorySelected: (category: string, estimate: number) => void;
 }
+
 const BudgetCategories: React.FunctionComponent<Props> = ({ items, total, caption, onCategorySelected }) => {
+  const [pageSize, setPageSize] = React.useState<number>(10);
+  
+  const columns: GridColDef[] = [
+    {
+      field: 'category',
+      headerName: 'Category',
+      flex: 1
+    },
+    {
+      field: 'sum',
+      headerName: 'Actual',
+      valueGetter: (params: GridValueGetterParams) =>
+          `$${params.row.sum.toFixed(2)}`
+    },
+    {
+      field: 'estimate',
+      headerName: 'Estimate',
+      valueGetter: (params: GridValueGetterParams) =>
+          `$${params.row.estimate.toFixed(2)}`
+    },
+    {
+      field: '',
+      headerName: 'Leftover',
+      valueGetter: (params: GridValueGetterParams) =>
+          params.row.estimate - params.row.sum
+    }
+  ];
+
   return (
-    <TableContainer component={Paper} sx={{overflow: 'hidden' }}>
-      <Table size="small" aria-label="budget category table">
-        <caption>{caption}</caption>
-        <TableHead>
-          <TableRow>
-            <TableCell>Category</TableCell>
-            <TableCell align="right">Actual</TableCell>
-            <TableCell align="right">Estimate</TableCell>
-            <TableCell align="right">Leftover</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {items.map((row: any) => (
-            <TableRow
-              key={row.category}
-              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-            >
-              <TableCell component="th" scope="row">
-                {row.category}
-              </TableCell>
-              <TableCell align="right">{row.sum}</TableCell>
-              <TableCell align="right">
-                <Button disabled={row.category === "Uncategorized"} onClick={() => onCategorySelected(row.category, row.estimate)} size="small">
-                  {row.estimate}
-                </Button>
-              </TableCell>
-              <TableCell align="right">{row.estimate - row.sum}</TableCell>
-            </TableRow>
-          ))}
-          <TableRow>
-            <TableCell component="th" scope="row">
-              Total
-            </TableCell>
-            <TableCell align="right">{total}</TableCell>
-            <TableCell align="right">0</TableCell>
-            <TableCell align="right">0</TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <div style={{ height: '80vh', width: '100%' }}>
+      {/* <Chip label={caption} variant="outlined" />
+      <Chip label={total} /> */}
+        <DataGrid
+            getRowId={(row) => row.category}
+            rows={items}
+            columns={columns}
+            pageSize={pageSize}
+            onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
+            rowsPerPageOptions={[10, 20, 30]}
+            pagination
+            onRowClick={(params) => params.row.category === "Uncategorized" ? {} : onCategorySelected(params.row.category, params.row.estimate)}
+        />
+        
+    </div>
   );
 }
 
