@@ -13,44 +13,39 @@ namespace Transactions.Application.Commands
     public class LoadTransactionsCommand : IRequest<LoadTransactionsCommand.Response>
     {
         private string UserId { get; set; }
-        private DateTime StartDate { get; set; }
-        private DateTime EndDate { get; set; }
-        public LoadTransactionsCommand(string userId, DateTime startDate, DateTime endDate)
+        private int BudgetId { get; set; }
+        public LoadTransactionsCommand(string userId, int budgetId)
         {
             if (string.IsNullOrEmpty(userId))
             {
                 throw new ArgumentException($"{nameof(userId)} cannot be null or empty.");
             }
 
-            if (startDate > endDate)
-            {
-                throw new ArgumentException($"{nameof(startDate)} value \"{startDate}\" cannot be after {nameof(endDate)} value \"{endDate}\"");
-            }
-
             UserId = userId;
-            StartDate = startDate;
-            EndDate = endDate;
+            BudgetId = budgetId;
         }
 
         public class Handler : IRequestHandler<LoadTransactionsCommand, Response>
         {
             private readonly ILogger<LoadTransactionsCommand> _logger;
             private readonly IFinancialService _financialService;
+            private readonly IBudgetService _budgetService;
             private readonly IExcelService _excelService;
 
-            public Handler(ILogger<LoadTransactionsCommand> logger, IFinancialService financialService, IExcelService excelService)
+            public Handler(ILogger<LoadTransactionsCommand> logger, IFinancialService financialService, IExcelService excelService,
+                IBudgetService budgetService)
             {
                 _logger = logger;
                 _financialService = financialService;
+                _budgetService = budgetService;
                 _excelService = excelService;
             }
 
             public async Task<Response> Handle(LoadTransactionsCommand request, CancellationToken cancellationToken)
             {
-                var transactions = await _financialService.GetTransactionsAsync(request.UserId, request.StartDate, request.EndDate);
-                
-                var worksheetName = $"{request.StartDate:Y}-{transactions.First().Account.official_name}";
-                await _excelService.SaveExcelFileAsync(transactions, worksheetName);
+                var budget = await _budgetService.GetBudgetAsync(request.BudgetId);
+                var transactions = await _financialService.GetTransactionsAsync(request.UserId, budget.StartDate, budget.EndDate);
+                await _excelService.SaveExcelFileAsync(transactions, budget.Name);
                 return new Response(transactions);
             }
         }

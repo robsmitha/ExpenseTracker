@@ -16,6 +16,7 @@ import Home from "./routes/home";
 import SignOut from "./routes/signout";
 import Authorize from "./routes/authorize";
 import Accounts from "./routes/accounts";
+import Account from "./routes/account";
 import Budgets from "./routes/budgets";
 import Budget from "./routes/budget";
 
@@ -50,6 +51,11 @@ export const App: React.FunctionComponent<IAppProps> = (props) => {
           <Route path="/budget/:budgetId" element={
           <Authenticated>
             <Budget />
+          </Authenticated>
+          } />
+          <Route path="/account/:accountId" element={
+          <Authenticated>
+            <Account />
           </Authenticated>
           } />
         </Route>

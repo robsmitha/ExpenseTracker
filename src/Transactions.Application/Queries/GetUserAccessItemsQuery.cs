@@ -47,11 +47,18 @@ namespace Transactions.Application.Queries
                     }
                     catch (FinancialServiceException fex)
                     {
-                        if(string.Equals(fex.Error?.error_code, ErrorCodes.ITEM_LOGIN_REQUIRED, 
-                            StringComparison.InvariantCultureIgnoreCase))
+                        var errorAccessItem = new UserAccessItemModel
                         {
-                            expiredAccessTokens.Add(new ExpiredAccessItem(accessToken.AccessToken, fex.Error.error_message, institution));
+                            Institution = institution,
+                            UserAccessItemId = accessToken.Id
+                        };
+
+                        if (string.Equals(fex.Error?.error_code, ErrorCodes.ITEM_LOGIN_REQUIRED, StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            errorAccessItem.ExpiredAccessItem = new ExpiredAccessItem(accessToken.AccessToken, fex.Error.error_message, institution);
                         }
+
+                        userAccessItems.Add(errorAccessItem);
 
                         continue;
                     }

@@ -2,7 +2,9 @@ import { send } from './api.service'
 export const accessItemService = {
     getUserAccessItems,
     createLinkToken,
-    setAccessToken
+    setAccessToken,
+    createLinkTokenForUpdate,
+    getUserAccessItem
 };
 
 
@@ -10,7 +12,14 @@ async function getUserAccessItems() {
     const request = {
         method: 'get'
     }
-    return send(`/accessItems/getUserAccessItems`, request)
+    return send(`/accessItems`, request)
+}
+
+async function getUserAccessItem(userAccessItemId: number) {
+    const request = {
+        method: 'get'
+    }
+    return send(`/accessItems/${userAccessItemId}`, request)
 }
 
 async function createLinkToken () {
@@ -21,6 +30,16 @@ async function createLinkToken () {
         }
     }
     return send(`/accessItems/createLinkToken`, request)
+}
+
+async function createLinkTokenForUpdate (accessToken: string) {
+    const request = {
+        method: 'post',
+        headers: { 
+            'Content-Type': 'application/json'
+        }
+    }
+    return send(`/accessItems/createLinkToken/${accessToken}`, request)
 }
 
 async function setAccessToken (publicToken: string) {

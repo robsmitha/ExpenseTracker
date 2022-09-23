@@ -45,6 +45,13 @@ namespace Transactions.Infrastructure.Services
             return _mapper.Map<AccessTokenModel>(accessToken);
         }
 
+        public async Task<AccessTokenModel> GetAccessTokenAsync(int userAccessTokenId)
+        {
+            var accessToken = await _context.UserAccessItems.FirstOrDefaultAsync(a => a.UserId == _httpContextAccessor.GetUserId() && a.Id == userAccessTokenId);
+            return _mapper.Map<AccessTokenModel>(accessToken);
+        }
+
+
         public async Task<AccessTokenModel> SetAccessTokenAsync(string accessToken, string itemId, string institutionId)
         {
             var userAccessItem = new UserAccessItem

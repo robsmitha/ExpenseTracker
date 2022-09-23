@@ -11,6 +11,7 @@ namespace Transactions.Application.Interfaces
     {
         Task<List<AccessTokenModel>> GetAccessTokensAsync();
         Task<AccessTokenModel> GetAccessTokenAsync(string itemId);
+        Task<AccessTokenModel> GetAccessTokenAsync(int userAccessTokenId);
         Task<AccessTokenModel> SetAccessTokenAsync(string accessToken, string itemId, string institutionId);
         Task<List<AccessTokenModel>> GetBudgetAccessTokensAsync(int budgetId);
     }

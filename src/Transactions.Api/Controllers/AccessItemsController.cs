@@ -24,10 +24,16 @@ namespace Transactions.Api.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet("GetUserAccessItems")]
+        [HttpGet]
         public async Task<ActionResult<List<UserAccessItemModel>>> GetUserAccessItems()
         {
             return Ok(await _mediator.Send(new GetUserAccessItemsQuery()));
+        }
+
+        [HttpGet("{userAccessItemId}")]
+        public async Task<ActionResult<List<UserAccessItemModel>>> GetUserAccessItem(int userAccessItemId)
+        {
+            return Ok(await _mediator.Send(new GetUserAccessItemQuery(userAccessItemId)));
         }
 
         [HttpPost("SetAccessToken")]
